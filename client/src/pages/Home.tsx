@@ -1,16 +1,19 @@
 /*
- * BOLLINGER CI DASHBOARD — Home Page
- * Design: Art Déco Prestige, noir + or champagne
- * Sections: Executive Snapshot, Positionnement, Portefeuille, Prix,
- *           Distribution, Part de Voix, Social & Digital, Signaux Faibles, Recommandations
+ * BOLLINGER CI DASHBOARD — Responsive Layout
+ * Mobile  (<768px)  : bottom tab bar, single column cards
+ * Tablet  (768–1023px): sidebar 220px + single column content
+ * Desktop (≥1024px) : sidebar 260px + multi-column grid (2–3 cols)
+ * Design: Art Déco Prestige — noir + or champagne
+ * Fonts: Playfair Display (titres) + DM Sans (corps)
  */
 
 import { useState, useEffect, useRef } from "react";
 import {
   TrendingUp, TrendingDown, Minus, ExternalLink, AlertTriangle,
-  Star, BarChart2, Globe, ShoppingBag, Megaphone, Smartphone,
+  Star, BarChart2, Globe, Megaphone, Smartphone,
   Zap, Target, ChevronRight, Info, Award, MapPin, Package,
-  DollarSign, Radio, Activity, Shield, Lightbulb, LayoutDashboard
+  DollarSign, Radio, Activity, Shield, Lightbulb, LayoutDashboard,
+  Menu, X
 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -41,10 +44,10 @@ function TrendBadge({ dir, value }: { dir: TrendDir; value: string }) {
 
 function SectionTitle({ icon: Icon, title, subtitle }: { icon: any; title: string; subtitle?: string }) {
   return (
-    <div className="mb-4">
+    <div className="mb-5">
       <div className="flex items-center gap-2 mb-1">
         <div className="p-1.5 rounded" style={{ background: "oklch(0.72 0.12 75 / 0.15)" }}>
-          <Icon size={14} style={{ color: "oklch(0.72 0.12 75)" }} />
+          <Icon size={15} style={{ color: "oklch(0.72 0.12 75)" }} />
         </div>
         <h2 className="section-header">{title}</h2>
       </div>
@@ -135,33 +138,35 @@ function ExecutiveSnapshot() {
   ];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <SectionTitle icon={LayoutDashboard} title="Executive Snapshot" subtitle="6 insights clés · Impact business · Sources vérifiées" />
-      {insights.map((ins, i) => (
-        <Card key={i}>
-          <div className="flex gap-3">
-            <div className="flex-shrink-0 mt-0.5">
-              <div className="w-7 h-7 rounded flex items-center justify-center"
-                style={{ background: `${ins.color} / 0.15`, backgroundColor: ins.color.replace(")", " / 0.15)").replace("oklch(", "oklch(") }}>
-                <ins.icon size={14} style={{ color: ins.color }} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {insights.map((ins, i) => (
+          <Card key={i}>
+            <div className="flex gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <div className="w-8 h-8 rounded flex items-center justify-center"
+                  style={{ backgroundColor: `color-mix(in oklch, ${ins.color} 15%, transparent)` }}>
+                  <ins.icon size={15} style={{ color: ins.color }} />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm mb-1" style={{ color: "oklch(0.95 0.008 80)", fontFamily: "'Playfair Display', serif" }}>
+                  {ins.title}
+                </p>
+                <p className="text-xs leading-relaxed mb-2" style={{ color: "oklch(0.70 0.008 75)" }}>
+                  {ins.body}
+                </p>
+                <div className="flex items-start gap-1 mb-2">
+                  <span className="text-xs font-medium flex-shrink-0" style={{ color: "oklch(0.72 0.12 75)" }}>→</span>
+                  <p className="text-xs italic" style={{ color: "oklch(0.72 0.12 75 / 0.85)" }}>{ins.impact}</p>
+                </div>
+                <SourceBadge source={ins.source} />
               </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm mb-1" style={{ color: "oklch(0.95 0.008 80)", fontFamily: "'Playfair Display', serif" }}>
-                {ins.title}
-              </p>
-              <p className="text-xs leading-relaxed mb-2" style={{ color: "oklch(0.70 0.008 75)" }}>
-                {ins.body}
-              </p>
-              <div className="flex items-start gap-1 mb-2">
-                <span className="text-xs font-medium flex-shrink-0" style={{ color: "oklch(0.72 0.12 75)" }}>→</span>
-                <p className="text-xs italic" style={{ color: "oklch(0.72 0.12 75 / 0.85)" }}>{ins.impact}</p>
-              </div>
-              <SourceBadge source={ins.source} />
-            </div>
-          </div>
-        </Card>
-      ))}
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
@@ -192,51 +197,52 @@ function Positionnement() {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <SectionTitle icon={Star} title="Positionnement & Proposition de Valeur" subtitle="Bollinger vs competitive set · 9 maisons" />
-
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>ADN Bollinger</p>
-        <div className="space-y-2">
-          {bollingerDNA.map((item, i) => (
-            <div key={i} className="flex justify-between items-start gap-2">
-              <span className="text-xs" style={{ color: "oklch(0.60 0.010 75)" }}>{item.label}</span>
-              <span className="text-xs font-medium text-right" style={{ color: "oklch(0.90 0.008 80)" }}>{item.value}</span>
-            </div>
-          ))}
-        </div>
-        <div className="gold-line mt-3 mb-2" />
-        <SourceBadge source={{ label: "Bollinger.com", url: "https://www.champagne-bollinger.com", date: "2024" }} />
-      </Card>
-
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Competitive Set — Justification</p>
-        <p className="text-xs mb-3 leading-relaxed" style={{ color: "oklch(0.60 0.010 75)" }}>
-          Sélection basée sur : positionnement prestige/ultra-prestige, fourchette de prix comparable, distribution internationale similaire, notoriété professionnelle (Drinks International 2025–2026).
-        </p>
-        <div className="space-y-2">
-          {competitors.map((c, i) => (
-            <div key={i} className="flex items-start gap-2 py-1.5 border-b last:border-0" style={{ borderColor: "oklch(0.72 0.12 75 / 0.10)" }}>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className={`text-sm font-semibold ${c.name === "Bollinger" ? "text-gold-gradient" : ""}`}
-                    style={c.name !== "Bollinger" ? { color: "oklch(0.90 0.008 80)", fontFamily: "'Playfair Display', serif" } : { fontFamily: "'Playfair Display', serif" }}>
-                    {c.name}
-                  </span>
-                  {c.indie && <span className="text-xs px-1 py-0.5 rounded" style={{ background: "oklch(0.65 0.15 145 / 0.15)", color: "oklch(0.65 0.15 145)" }}>Indép.</span>}
-                  {c.bcorp && <span className="text-xs px-1 py-0.5 rounded" style={{ background: "oklch(0.72 0.12 75 / 0.15)", color: "oklch(0.72 0.12 75)" }}>B Corp</span>}
-                  {c.bond && <span className="text-xs px-1 py-0.5 rounded" style={{ background: "oklch(0.55 0.10 260 / 0.20)", color: "oklch(0.65 0.12 260)" }}>007</span>}
-                </div>
-                <p className="text-xs mt-0.5" style={{ color: "oklch(0.55 0.008 75)" }}>{c.tier} · {c.dna}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>ADN Bollinger</p>
+          <div className="space-y-2">
+            {bollingerDNA.map((item, i) => (
+              <div key={i} className="flex justify-between items-start gap-2">
+                <span className="text-xs" style={{ color: "oklch(0.60 0.010 75)" }}>{item.label}</span>
+                <span className="text-xs font-medium text-right" style={{ color: "oklch(0.90 0.008 80)" }}>{item.value}</span>
               </div>
-              <span className="text-xs font-medium flex-shrink-0" style={{ color: "oklch(0.72 0.12 75)" }}>{c.price}</span>
-            </div>
-          ))}
-        </div>
-        <div className="mt-3">
-          <SourceBadge source={{ label: "Drinks International", url: "https://thefinestbubble.com/news-and-reviews/the-worlds-most-admired-champagne-brands-2025-drinks-international-report/", date: "mars 2025" }} />
-        </div>
-      </Card>
+            ))}
+          </div>
+          <div className="gold-line mt-3 mb-2" />
+          <SourceBadge source={{ label: "Bollinger.com", url: "https://www.champagne-bollinger.com", date: "2024" }} />
+        </Card>
+
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Competitive Set — Justification</p>
+          <p className="text-xs mb-3 leading-relaxed" style={{ color: "oklch(0.60 0.010 75)" }}>
+            Sélection basée sur : positionnement prestige/ultra-prestige, fourchette de prix comparable, distribution internationale similaire, notoriété professionnelle (Drinks International 2025–2026).
+          </p>
+          <div className="space-y-2">
+            {competitors.map((c, i) => (
+              <div key={i} className="flex items-start gap-2 py-1.5 border-b last:border-0" style={{ borderColor: "oklch(0.72 0.12 75 / 0.10)" }}>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className={`text-sm font-semibold ${c.name === "Bollinger" ? "text-gold-gradient" : ""}`}
+                      style={c.name !== "Bollinger" ? { color: "oklch(0.90 0.008 80)", fontFamily: "'Playfair Display', serif" } : { fontFamily: "'Playfair Display', serif" }}>
+                      {c.name}
+                    </span>
+                    {c.indie && <span className="text-xs px-1 py-0.5 rounded" style={{ background: "oklch(0.65 0.15 145 / 0.15)", color: "oklch(0.65 0.15 145)" }}>Indép.</span>}
+                    {c.bcorp && <span className="text-xs px-1 py-0.5 rounded" style={{ background: "oklch(0.72 0.12 75 / 0.15)", color: "oklch(0.72 0.12 75)" }}>B Corp</span>}
+                    {c.bond && <span className="text-xs px-1 py-0.5 rounded" style={{ background: "oklch(0.55 0.10 260 / 0.20)", color: "oklch(0.65 0.12 260)" }}>007</span>}
+                  </div>
+                  <p className="text-xs mt-0.5" style={{ color: "oklch(0.55 0.008 75)" }}>{c.tier} · {c.dna}</p>
+                </div>
+                <span className="text-xs font-medium flex-shrink-0" style={{ color: "oklch(0.72 0.12 75)" }}>{c.price}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3">
+            <SourceBadge source={{ label: "Drinks International", url: "https://thefinestbubble.com/news-and-reviews/the-worlds-most-admired-champagne-brands-2025-drinks-international-report/", date: "mars 2025" }} />
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -244,69 +250,19 @@ function Positionnement() {
 // ─── Section: Portefeuille ────────────────────────────────────────────────────
 function Portefeuille() {
   const gammes = [
-    {
-      name: "Special Cuvée NV",
-      tier: "Entrée prestige",
-      desc: "Cuvée phare, ~60% Pinot Noir, vieillissement en fûts de chêne, vins de réserve en magnums. Notes brioche, fruits rouges, agrumes.",
-      price: "55–78€",
-      scores: "DC95 · JS93 · WS93",
-      flagship: true,
-    },
-    {
-      name: "La Grande Année",
-      tier: "Millésime prestige",
-      desc: "Millésime de prestige, uniquement les meilleures années. Assemblage Pinot Noir + Chardonnay. Potentiel de garde 15–20 ans.",
-      price: "149–206€",
-      scores: "WA96+ · JS95",
-      flagship: false,
-    },
-    {
-      name: "La Grande Année Rosé",
-      tier: "Millésime prestige rosé",
-      desc: "Version rosé de La Grande Année, saignée de Pinot Noir. Rare et très recherché.",
-      price: "180–250€",
-      scores: "WA95+",
-      flagship: false,
-    },
-    {
-      name: "R.D. (Récemment Dégorgé)",
-      tier: "Ultra-prestige",
-      desc: "Dégorgement tardif après 10–12 ans sur lies. Complexité oxydative unique. Cuvée iconique créée en 1952.",
-      price: "350–500€",
-      scores: "WA97+",
-      flagship: false,
-    },
-    {
-      name: "Vieilles Vignes Françaises",
-      tier: "Ultra-prestige / Collector",
-      desc: "Blanc de Noirs issu de vignes non greffées pré-phylloxéra. Production ultra-confidentielle (~3 000 btl/an). Menace phylloxera identifiée.",
-      price: "400–600€",
-      scores: "WA99",
-      flagship: false,
-      alert: "Risque extinction phylloxera",
-    },
-    {
-      name: "PN AYC18 / TX17",
-      tier: "Innovation / Terroir",
-      desc: "Gamme Pinot Noir mono-terroir, expression parcellaire. Positionnement connaisseurs, communication wine-geek.",
-      price: "80–120€",
-      scores: "WA93+",
-      flagship: false,
-    },
-    {
-      name: "Special Cuvée 007 Ltd Ed.",
-      tier: "Édition limitée",
-      desc: "Célébration 45+ ans de partenariat James Bond. Lancée octobre 2025. Packaging collector.",
-      price: "75–100€",
-      scores: "N/D",
-      flagship: false,
-    },
+    { name: "Special Cuvée NV", tier: "Entrée prestige", desc: "Cuvée phare, ~60% Pinot Noir, vieillissement en fûts de chêne, vins de réserve en magnums. Notes brioche, fruits rouges, agrumes.", price: "55–78€", scores: "DC95 · JS93 · WS93", flagship: true },
+    { name: "La Grande Année", tier: "Millésime prestige", desc: "Millésime de prestige, uniquement les meilleures années. Assemblage Pinot Noir + Chardonnay. Potentiel de garde 15–20 ans.", price: "149–206€", scores: "WA96+ · JS95", flagship: false },
+    { name: "La Grande Année Rosé", tier: "Millésime prestige rosé", desc: "Version rosé de La Grande Année, saignée de Pinot Noir. Rare et très recherché.", price: "180–250€", scores: "WA95+", flagship: false },
+    { name: "R.D. (Récemment Dégorgé)", tier: "Ultra-prestige", desc: "Dégorgement tardif après 10–12 ans sur lies. Complexité oxydative unique. Cuvée iconique créée en 1952.", price: "350–500€", scores: "WA97+", flagship: false },
+    { name: "Vieilles Vignes Françaises", tier: "Ultra-prestige / Collector", desc: "Blanc de Noirs issu de vignes non greffées pré-phylloxéra. Production ultra-confidentielle (~3 000 btl/an). Menace phylloxera identifiée.", price: "400–600€", scores: "WA99", flagship: false, alert: "Risque extinction phylloxera" },
+    { name: "PN AYC18 / TX17", tier: "Innovation / Terroir", desc: "Gamme Pinot Noir mono-terroir, expression parcellaire. Positionnement connaisseurs, communication wine-geek.", price: "80–120€", scores: "WA93+", flagship: false },
+    { name: "Special Cuvée 007 Ltd Ed.", tier: "Édition limitée", desc: "Célébration 45+ ans de partenariat James Bond. Lancée octobre 2025. Packaging collector.", price: "75–100€", scores: "N/D", flagship: false },
   ];
 
   return (
     <div className="space-y-4">
       <SectionTitle icon={Package} title="Portefeuille Produits" subtitle="Gammes, cuvées iconiques, innovations" />
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {gammes.map((g, i) => (
           <Card key={i} className={g.flagship ? "border-amber-600/40" : ""}>
             <div className="flex justify-between items-start mb-1">
@@ -331,10 +287,12 @@ function Portefeuille() {
           </Card>
         ))}
       </div>
-      <div className="text-xs" style={{ color: "oklch(0.50 0.008 75)" }}>
-        WA = Wine Advocate · JS = James Suckling · DC = Decanter · WS = Wine Spectator
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="text-xs" style={{ color: "oklch(0.50 0.008 75)" }}>
+          WA = Wine Advocate · JS = James Suckling · DC = Decanter · WS = Wine Spectator
+        </div>
+        <SourceBadge source={{ label: "Wine-Searcher / Bollinger.com", url: "https://www.wine-searcher.com/find/bollinger", date: "mars 2026" }} />
       </div>
-      <SourceBadge source={{ label: "Wine-Searcher / Bollinger.com", url: "https://www.wine-searcher.com/find/bollinger", date: "mars 2026" }} />
     </div>
   );
 }
@@ -365,46 +323,45 @@ function Prix() {
   return (
     <div className="space-y-4">
       <SectionTitle icon={DollarSign} title="Analyse des Prix" subtitle="Fourchettes, tendances, comparatif concurrents" />
-
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Tendances prix marché</p>
-        <div className="space-y-2">
-          {tendances.map((t, i) => (
-            <div key={i} className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Tendances prix marché</p>
+          <div className="space-y-2">
+            {tendances.map((t, i) => (
+              <div key={i} className="flex items-start justify-between gap-2">
                 <TrendBadge dir={t.dir} value={t.label} />
+                <p className="text-xs text-right flex-1" style={{ color: "oklch(0.60 0.010 75)" }}>{t.desc}</p>
               </div>
-              <p className="text-xs text-right flex-1" style={{ color: "oklch(0.60 0.010 75)" }}>{t.desc}</p>
-            </div>
-          ))}
-        </div>
-        <div className="gold-line mt-3 mb-2" />
-        <SourceBadge source={{ label: "DataBridge / Comité Champagne", url: "https://www.databridgemarketresearch.com/reports/global-champagne-market", date: "2024" }} />
-      </Card>
+            ))}
+          </div>
+          <div className="gold-line mt-3 mb-2" />
+          <SourceBadge source={{ label: "DataBridge / Comité Champagne", url: "https://www.databridgemarketresearch.com/reports/global-champagne-market", date: "2024" }} />
+        </Card>
 
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Comparatif prix (bouteille 75cl)</p>
-        <div className="space-y-1.5">
-          {prixData.map((p, i) => (
-            <div key={i} className={`flex items-center gap-2 py-1 border-b last:border-0 ${p.maison === "Bollinger" ? "rounded px-1" : ""}`}
-              style={p.maison === "Bollinger" ? { background: "oklch(0.72 0.12 75 / 0.06)", borderColor: "transparent" } : { borderColor: "oklch(0.72 0.12 75 / 0.08)" }}>
-              <div className="flex-1 min-w-0">
-                <span className="text-xs font-medium" style={{ color: p.maison === "Bollinger" ? "oklch(0.72 0.12 75)" : "oklch(0.85 0.008 80)" }}>
-                  {p.maison === "Bollinger" ? "★ " : ""}{p.maison}
-                </span>
-                <span className="text-xs ml-1" style={{ color: "oklch(0.55 0.008 75)" }}>· {p.cuvee}</span>
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Comparatif prix (bouteille 75cl)</p>
+          <div className="space-y-1.5">
+            {prixData.map((p, i) => (
+              <div key={i} className={`flex items-center gap-2 py-1 border-b last:border-0 ${p.maison === "Bollinger" ? "rounded px-1" : ""}`}
+                style={p.maison === "Bollinger" ? { background: "oklch(0.72 0.12 75 / 0.06)", borderColor: "transparent" } : { borderColor: "oklch(0.72 0.12 75 / 0.08)" }}>
+                <div className="flex-1 min-w-0">
+                  <span className="text-xs font-medium" style={{ color: p.maison === "Bollinger" ? "oklch(0.72 0.12 75)" : "oklch(0.85 0.008 80)" }}>
+                    {p.maison === "Bollinger" ? "★ " : ""}{p.maison}
+                  </span>
+                  <span className="text-xs ml-1" style={{ color: "oklch(0.55 0.008 75)" }}>· {p.cuvee}</span>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <span className="text-xs font-semibold" style={{ color: p.maison === "Bollinger" ? "oklch(0.72 0.12 75)" : "oklch(0.80 0.008 80)" }}>{p.prix}</span>
+                  <p className="text-xs" style={{ color: "oklch(0.50 0.008 75)" }}>{p.segment}</p>
+                </div>
               </div>
-              <div className="text-right flex-shrink-0">
-                <span className="text-xs font-semibold" style={{ color: p.maison === "Bollinger" ? "oklch(0.72 0.12 75)" : "oklch(0.80 0.008 80)" }}>{p.prix}</span>
-                <p className="text-xs" style={{ color: "oklch(0.50 0.008 75)" }}>{p.segment}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-3">
-          <SourceBadge source={{ label: "Wine-Searcher", url: "https://www.wine-searcher.com/find/bollinger", date: "mars 2026" }} />
-        </div>
-      </Card>
+            ))}
+          </div>
+          <div className="mt-3">
+            <SourceBadge source={{ label: "Wine-Searcher", url: "https://www.wine-searcher.com/find/bollinger", date: "mars 2026" }} />
+          </div>
+        </Card>
+      </div>
 
       <Card>
         <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "oklch(0.72 0.12 75)" }}>Politique promotionnelle</p>
@@ -431,65 +388,68 @@ function Distribution() {
   ];
 
   const channels = [
-    { name: "On-Trade (hôtels, restaurants, bars)", share: "~67%", trend: "up" as TrendDir, note: "CAGR +6,94% projeté (Fortune Business Insights)" },
-    { name: "Off-Trade (cavistes, e-commerce)", share: "~33%", trend: "up" as TrendDir, note: "E-commerce en croissance, cavistes premium" },
+    { name: "On-Trade (hôtels, restaurants, bars)", share: "67%", trend: "up" as TrendDir, note: "CAGR +6,94% projeté (Fortune Business Insights)" },
+    { name: "Off-Trade (cavistes, e-commerce)", share: "33%", trend: "up" as TrendDir, note: "E-commerce en croissance, cavistes premium" },
   ];
 
   return (
     <div className="space-y-4">
       <SectionTitle icon={Globe} title="Distribution" subtitle="On-trade / Off-trade · Géographies clés · Canaux" />
-
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Top marchés export champagne 2024</p>
-        <div className="space-y-2">
-          {markets.map((m, i) => (
-            <div key={i} className="flex items-start gap-2 py-1.5 border-b last:border-0" style={{ borderColor: "oklch(0.72 0.12 75 / 0.10)" }}>
-              <span className="text-xs w-4 flex-shrink-0 font-bold" style={{ color: "oklch(0.72 0.12 75)" }}>#{m.rank}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium" style={{ color: "oklch(0.90 0.008 80)" }}>{m.pays}</span>
-                  <TrendBadge dir={m.dir} value={m.evol} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Top marchés export champagne 2024</p>
+          <div className="space-y-2">
+            {markets.map((m, i) => (
+              <div key={i} className="flex items-start gap-2 py-1.5 border-b last:border-0" style={{ borderColor: "oklch(0.72 0.12 75 / 0.10)" }}>
+                <span className="text-xs w-4 flex-shrink-0 font-bold" style={{ color: "oklch(0.72 0.12 75)" }}>#{m.rank}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium" style={{ color: "oklch(0.90 0.008 80)" }}>{m.pays}</span>
+                    <TrendBadge dir={m.dir} value={m.evol} />
+                  </div>
+                  <p className="text-xs" style={{ color: "oklch(0.55 0.008 75)" }}>{m.btl} · {m.val}</p>
+                  {m.note && <p className="text-xs italic mt-0.5" style={{ color: "oklch(0.60 0.010 75)" }}>{m.note}</p>}
                 </div>
-                <p className="text-xs" style={{ color: "oklch(0.55 0.008 75)" }}>{m.btl} · {m.val}</p>
-                {m.note && <p className="text-xs italic mt-0.5" style={{ color: "oklch(0.60 0.010 75)" }}>{m.note}</p>}
               </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-3">
-          <SourceBadge source={{ label: "The Drinks Business", url: "https://www.thedrinksbusiness.com/2025/03/the-top-10-markets-for-champagne-in-2024/", date: "mars 2025" }} />
-        </div>
-      </Card>
-
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Canaux de distribution</p>
-        {channels.map((c, i) => (
-          <div key={i} className="mb-3 last:mb-0">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-medium" style={{ color: "oklch(0.85 0.008 80)" }}>{c.name}</span>
-              <span className="text-sm font-bold kpi-value">{c.share}</span>
-            </div>
-            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "oklch(0.20 0.010 65)" }}>
-              <div className="h-full rounded-full transition-all duration-700"
-                style={{ width: c.share, background: "linear-gradient(90deg, oklch(0.72 0.12 75), oklch(0.62 0.14 70))" }} />
-            </div>
-            <p className="text-xs mt-1" style={{ color: "oklch(0.55 0.008 75)" }}>{c.note}</p>
+            ))}
           </div>
-        ))}
-        <div className="mt-3">
-          <SourceBadge source={{ label: "Fortune Business Insights", url: "https://www.fortunebusinessinsights.com/champagne-market-112162", date: "fév. 2026" }} />
-        </div>
-      </Card>
+          <div className="mt-3">
+            <SourceBadge source={{ label: "The Drinks Business", url: "https://www.thedrinksbusiness.com/2025/03/the-top-10-markets-for-champagne-in-2024/", date: "mars 2025" }} />
+          </div>
+        </Card>
 
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "oklch(0.72 0.12 75)" }}>Distribution Bollinger — Spécificités</p>
-        <div className="space-y-2 text-xs" style={{ color: "oklch(0.65 0.008 75)" }}>
-          <p><span style={{ color: "oklch(0.72 0.12 75)" }}>UK :</span> Distributeur exclusif Mentzendorff & Co (Londres). Présence forte on-trade, hôtels 5*, restaurants étoilés.</p>
-          <p><span style={{ color: "oklch(0.72 0.12 75)" }}>USA :</span> Distribution premium, cavistes spécialisés, restaurants gastronomiques. Pas de grande distribution.</p>
-          <p><span style={{ color: "oklch(0.72 0.12 75)" }}>E-commerce :</span> Vente directe via champagne-bollinger.com et cavistes en ligne premium (Millesima, etc.).</p>
-          <p><span style={{ color: "oklch(0.72 0.12 75)" }}>Wine Tourism :</span> Visites Maison à Aÿ, futur hôtel 20 chambres (bicentenaire 2029).</p>
+        <div className="space-y-4">
+          <Card>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Canaux de distribution</p>
+            {channels.map((c, i) => (
+              <div key={i} className="mb-3 last:mb-0">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs font-medium" style={{ color: "oklch(0.85 0.008 80)" }}>{c.name}</span>
+                  <span className="text-sm font-bold kpi-value">{c.share}</span>
+                </div>
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "oklch(0.20 0.010 65)" }}>
+                  <div className="h-full rounded-full transition-all duration-700"
+                    style={{ width: c.share, background: "linear-gradient(90deg, oklch(0.72 0.12 75), oklch(0.62 0.14 70))" }} />
+                </div>
+                <p className="text-xs mt-1" style={{ color: "oklch(0.55 0.008 75)" }}>{c.note}</p>
+              </div>
+            ))}
+            <div className="mt-3">
+              <SourceBadge source={{ label: "Fortune Business Insights", url: "https://www.fortunebusinessinsights.com/champagne-market-112162", date: "fév. 2026" }} />
+            </div>
+          </Card>
+
+          <Card>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "oklch(0.72 0.12 75)" }}>Distribution Bollinger — Spécificités</p>
+            <div className="space-y-2 text-xs" style={{ color: "oklch(0.65 0.008 75)" }}>
+              <p><span style={{ color: "oklch(0.72 0.12 75)" }}>UK :</span> Distributeur exclusif Mentzendorff & Co (Londres). Présence forte on-trade, hôtels 5*, restaurants étoilés.</p>
+              <p><span style={{ color: "oklch(0.72 0.12 75)" }}>USA :</span> Distribution premium, cavistes spécialisés, restaurants gastronomiques. Pas de grande distribution.</p>
+              <p><span style={{ color: "oklch(0.72 0.12 75)" }}>E-commerce :</span> Vente directe via champagne-bollinger.com et cavistes en ligne premium (Millesima, etc.).</p>
+              <p><span style={{ color: "oklch(0.72 0.12 75)" }}>Wine Tourism :</span> Visites Maison à Aÿ, futur hôtel 20 chambres (bicentenaire 2029).</p>
+            </div>
+          </Card>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
@@ -519,54 +479,57 @@ function PartDeVoix() {
   return (
     <div className="space-y-4">
       <SectionTitle icon={Megaphone} title="Part de Voix & Médias" subtitle="Classements, presse spécialisée, actifs médiatiques" />
-
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Most Admired Champagne 2025–2026</p>
-        <p className="text-xs mb-3 italic" style={{ color: "oklch(0.55 0.008 75)" }}>
-          Drinks International · Jury : sommeliers, MW, journalistes, acheteurs (40 maisons évaluées)
-        </p>
-        <div className="space-y-1.5">
-          {rankings.map((r, i) => (
-            <div key={i} className={`flex items-center gap-2 py-1 px-2 rounded ${r.rank === 3 ? "" : ""}`}
-              style={r.rank === 3 ? { background: "oklch(0.72 0.12 75 / 0.08)", border: "1px solid oklch(0.72 0.12 75 / 0.20)" } : {}}>
-              <span className="text-xs w-5 font-bold flex-shrink-0" style={{ color: r.rank <= 3 ? "oklch(0.72 0.12 75)" : "oklch(0.50 0.008 75)" }}>#{r.rank}</span>
-              <span className="text-xs flex-1 font-medium" style={{ color: r.rank === 3 ? "oklch(0.72 0.12 75)" : "oklch(0.85 0.008 80)" }}>{r.maison}</span>
-              <span className="text-xs w-6 text-center" style={{ color: r.move.includes("↑") ? "oklch(0.65 0.15 145)" : r.move.includes("↓") ? "oklch(0.60 0.20 25)" : "oklch(0.55 0.008 75)" }}>{r.move}</span>
-            </div>
-          ))}
-        </div>
-        <div className="mt-3">
-          <SourceBadge source={{ label: "Drinks International / Wine Intelligence", url: "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports/most-admired-champagne-brands-2026-roederer-krug-and-bollinger-lead-again", date: "mars 2026" }} />
-        </div>
-      </Card>
-
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Actifs médiatiques Bollinger</p>
-        <div className="space-y-2">
-          {mediaAssets.map((a, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div className="flex-1 min-w-0">
-                <span className="text-xs font-medium" style={{ color: "oklch(0.85 0.008 80)" }}>{a.asset}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Most Admired Champagne 2025–2026</p>
+          <p className="text-xs mb-3 italic" style={{ color: "oklch(0.55 0.008 75)" }}>
+            Drinks International · Jury : sommeliers, MW, journalistes, acheteurs (40 maisons évaluées)
+          </p>
+          <div className="space-y-1.5">
+            {rankings.map((r, i) => (
+              <div key={i} className={`flex items-center gap-2 py-1 px-2 rounded`}
+                style={r.rank === 3 ? { background: "oklch(0.72 0.12 75 / 0.08)", border: "1px solid oklch(0.72 0.12 75 / 0.20)" } : {}}>
+                <span className="text-xs w-5 font-bold flex-shrink-0" style={{ color: r.rank <= 3 ? "oklch(0.72 0.12 75)" : "oklch(0.50 0.008 75)" }}>#{r.rank}</span>
+                <span className="text-xs flex-1 font-medium" style={{ color: r.rank === 3 ? "oklch(0.72 0.12 75)" : "oklch(0.85 0.008 80)" }}>{r.maison}</span>
+                <span className="text-xs w-6 text-center" style={{ color: r.move.includes("↑") ? "oklch(0.65 0.15 145)" : r.move.includes("↓") ? "oklch(0.60 0.20 25)" : "oklch(0.55 0.008 75)" }}>{r.move}</span>
               </div>
-              <span className="text-xs px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: "oklch(0.20 0.010 65)", color: "oklch(0.65 0.008 75)" }}>{a.type}</span>
-              <span className="text-xs font-medium flex-shrink-0 w-20 text-right"
-                style={{ color: a.impact.includes("Très") || a.impact.includes("Fort") ? "oklch(0.72 0.12 75)" : a.impact.includes("risque") ? "oklch(0.60 0.20 25)" : "oklch(0.65 0.15 145)" }}>
-                {a.impact}
-              </span>
-            </div>
-          ))}
-        </div>
-      </Card>
+            ))}
+          </div>
+          <div className="mt-3">
+            <SourceBadge source={{ label: "Drinks International / Wine Intelligence", url: "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports/most-admired-champagne-brands-2026-roederer-krug-and-bollinger-lead-again", date: "mars 2026" }} />
+          </div>
+        </Card>
 
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "oklch(0.72 0.12 75)" }}>Données N/D</p>
-        <p className="text-xs mb-1" style={{ color: "oklch(0.60 0.010 75)" }}>
-          <span style={{ color: "oklch(0.90 0.008 80)" }}>Part de voix médias (%) :</span> <NDTag reason="Données propriétaires Meltwater/Cision non accessibles publiquement." method="Abonnement Meltwater ou Cision pour suivi mentions presse + SOV mensuel." />
-        </p>
-        <p className="text-xs" style={{ color: "oklch(0.60 0.010 75)" }}>
-          <span style={{ color: "oklch(0.90 0.008 80)" }}>Budget marketing Bollinger :</span> <NDTag reason="Maison indépendante non cotée, pas de publication de comptes détaillés." method="Demande directe ou estimation via Kantar AdIntel (dépenses publicitaires mesurées)." />
-        </p>
-      </Card>
+        <div className="space-y-4">
+          <Card>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Actifs médiatiques Bollinger</p>
+            <div className="space-y-2">
+              {mediaAssets.map((a, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-medium" style={{ color: "oklch(0.85 0.008 80)" }}>{a.asset}</span>
+                  </div>
+                  <span className="text-xs px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: "oklch(0.20 0.010 65)", color: "oklch(0.65 0.008 75)" }}>{a.type}</span>
+                  <span className="text-xs font-medium flex-shrink-0 w-20 text-right"
+                    style={{ color: a.impact.includes("Très") || a.impact.includes("Fort") ? "oklch(0.72 0.12 75)" : a.impact.includes("risque") ? "oklch(0.60 0.20 25)" : "oklch(0.65 0.15 145)" }}>
+                    {a.impact}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "oklch(0.72 0.12 75)" }}>Données N/D</p>
+            <p className="text-xs mb-1" style={{ color: "oklch(0.60 0.010 75)" }}>
+              <span style={{ color: "oklch(0.90 0.008 80)" }}>Part de voix médias (%) :</span> <NDTag reason="Données propriétaires Meltwater/Cision non accessibles publiquement." method="Abonnement Meltwater ou Cision pour suivi mentions presse + SOV mensuel." />
+            </p>
+            <p className="text-xs" style={{ color: "oklch(0.60 0.010 75)" }}>
+              <span style={{ color: "oklch(0.90 0.008 80)" }}>Budget marketing Bollinger :</span> <NDTag reason="Maison indépendante non cotée, pas de publication de comptes détaillés." method="Demande directe ou estimation via Kantar AdIntel (dépenses publicitaires mesurées)." />
+            </p>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
@@ -591,50 +554,51 @@ function SocialDigital() {
   return (
     <div className="space-y-4">
       <SectionTitle icon={Smartphone} title="Social & Digital" subtitle="Croissance, engagement, campagnes clés" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Instagram — Comparatif abonnés</p>
+          <div className="space-y-2">
+            {socialData.map((s, i) => (
+              <div key={i} className={`flex items-center gap-2 py-1.5 border-b last:border-0 ${s.maison === "Bollinger" ? "rounded px-1" : ""}`}
+                style={s.maison === "Bollinger" ? { background: "oklch(0.72 0.12 75 / 0.06)", borderColor: "transparent" } : { borderColor: "oklch(0.72 0.12 75 / 0.08)" }}>
+                <div className="flex-1 min-w-0">
+                  <span className="text-xs font-medium" style={{ color: s.maison === "Bollinger" ? "oklch(0.72 0.12 75)" : "oklch(0.85 0.008 80)" }}>
+                    {s.maison === "Bollinger" ? "★ " : ""}{s.maison}
+                  </span>
+                  <p className="text-xs" style={{ color: "oklch(0.50 0.008 75)" }}>{s.note}</p>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <span className="text-sm font-bold kpi-value">{s.followers}</span>
+                  <p className="text-xs" style={{ color: "oklch(0.50 0.008 75)" }}>{s.posts} posts</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 p-2 rounded text-xs" style={{ background: "oklch(0.60 0.20 25 / 0.10)", border: "1px solid oklch(0.60 0.20 25 / 0.20)" }}>
+            <span style={{ color: "oklch(0.60 0.20 25)" }}>⚠ Écart notable :</span>
+            <span style={{ color: "oklch(0.65 0.008 75)" }}> Dom Pérignon (799K) dépasse Bollinger (252K) de 3x sur Instagram. Opportunité de croissance digitale.</span>
+          </div>
+          <div className="mt-2">
+            <SourceBadge source={{ label: "Instagram", url: "https://www.instagram.com/champagne_bollinger/", date: "mars 2026" }} />
+          </div>
+        </Card>
 
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Instagram — Comparatif abonnés</p>
-        <div className="space-y-2">
-          {socialData.map((s, i) => (
-            <div key={i} className={`flex items-center gap-2 py-1.5 border-b last:border-0 ${s.maison === "Bollinger" ? "rounded px-1" : ""}`}
-              style={s.maison === "Bollinger" ? { background: "oklch(0.72 0.12 75 / 0.06)", borderColor: "transparent" } : { borderColor: "oklch(0.72 0.12 75 / 0.08)" }}>
-              <div className="flex-1 min-w-0">
-                <span className="text-xs font-medium" style={{ color: s.maison === "Bollinger" ? "oklch(0.72 0.12 75)" : "oklch(0.85 0.008 80)" }}>
-                  {s.maison === "Bollinger" ? "★ " : ""}{s.maison}
-                </span>
-                <p className="text-xs" style={{ color: "oklch(0.50 0.008 75)" }}>{s.note}</p>
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Campagnes digitales notables</p>
+          <div className="space-y-3">
+            {campaigns.map((c, i) => (
+              <div key={i} className="pb-3 border-b last:border-0 last:pb-0" style={{ borderColor: "oklch(0.72 0.12 75 / 0.10)" }}>
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <span className="text-xs font-semibold" style={{ color: "oklch(0.90 0.008 80)", fontFamily: "'Playfair Display', serif" }}>{c.name}</span>
+                  <span className="text-xs flex-shrink-0" style={{ color: "oklch(0.72 0.12 75)" }}>{c.date}</span>
+                </div>
+                <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "oklch(0.20 0.010 65)", color: "oklch(0.60 0.008 75)" }}>{c.type}</span>
+                <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "oklch(0.60 0.010 75)" }}>{c.desc}</p>
               </div>
-              <div className="text-right flex-shrink-0">
-                <span className="text-sm font-bold kpi-value">{s.followers}</span>
-                <p className="text-xs" style={{ color: "oklch(0.50 0.008 75)" }}>{s.posts} posts</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-2 p-2 rounded text-xs" style={{ background: "oklch(0.60 0.20 25 / 0.10)", border: "1px solid oklch(0.60 0.20 25 / 0.20)" }}>
-          <span style={{ color: "oklch(0.60 0.20 25)" }}>⚠ Écart notable :</span>
-          <span style={{ color: "oklch(0.65 0.008 75)" }}> Dom Pérignon (799K) dépasse Bollinger (252K) de 3x sur Instagram. Opportunité de croissance digitale.</span>
-        </div>
-        <div className="mt-2">
-          <SourceBadge source={{ label: "Instagram", url: "https://www.instagram.com/champagne_bollinger/", date: "mars 2026" }} />
-        </div>
-      </Card>
-
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Campagnes digitales notables</p>
-        <div className="space-y-3">
-          {campaigns.map((c, i) => (
-            <div key={i} className="pb-3 border-b last:border-0 last:pb-0" style={{ borderColor: "oklch(0.72 0.12 75 / 0.10)" }}>
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <span className="text-xs font-semibold" style={{ color: "oklch(0.90 0.008 80)", fontFamily: "'Playfair Display', serif" }}>{c.name}</span>
-                <span className="text-xs flex-shrink-0" style={{ color: "oklch(0.72 0.12 75)" }}>{c.date}</span>
-              </div>
-              <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "oklch(0.20 0.010 65)", color: "oklch(0.60 0.008 75)" }}>{c.type}</span>
-              <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "oklch(0.60 0.010 75)" }}>{c.desc}</p>
-            </div>
-          ))}
-        </div>
-      </Card>
+            ))}
+          </div>
+        </Card>
+      </div>
 
       <Card>
         <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "oklch(0.72 0.12 75)" }}>Données N/D</p>
@@ -651,48 +615,42 @@ function SocialDigital() {
 function SignauxFaibles() {
   const signals = [
     {
-      level: "critique",
-      icon: AlertTriangle,
+      level: "critique", icon: AlertTriangle,
       title: "Tarifs douaniers US (Trump)",
       desc: "Exports vins français −39% en Q4 2025. USA = 1er marché export champagne (820M€ en 2024). Tarifs 10% en vigueur depuis avril 2025.",
       action: "Diversifier vers EAU (+21,6%), Canada, Corée du Sud. Réviser pricing US.",
       source: { label: "Bloomberg", url: "https://www.bloomberg.com/news/articles/2026-02-06/french-champagne-and-perfume-feel-the-pain-of-trump-tariffs", date: "fév. 2026" }
     },
     {
-      level: "critique",
-      icon: AlertTriangle,
+      level: "critique", icon: AlertTriangle,
       title: "Phylloxera — Vieilles Vignes Françaises",
       desc: "Les vignes non greffées de Bollinger (VVF) sont menacées par le phylloxera. Production ultra-confidentielle (~3 000 btl/an) pourrait disparaître.",
       action: "Accélérer recherche agronomique. Communiquer sur la rareté comme actif de valeur.",
       source: { label: "Champagne Club", url: "https://www.champagneclub.com/champagnes-rare-jewel-at-risk-of-extinction/", date: "mars 2024" }
     },
     {
-      level: "modere",
-      icon: Shield,
+      level: "modere", icon: Shield,
       title: "Risque réputation — Affaire Folc",
       desc: "Bollinger (via Mentzendorff) a envoyé un cease & desist à la marque anglaise Folc (oct. 2025) pour usage du terme 'Bollie'. Couverture négative dans la presse UK ('bullying').",
       action: "Revoir stratégie de protection de marque pour éviter image de 'bully'. Approche plus nuancée.",
       source: { label: "The Times", url: "https://drinksint.com/news/fullstory.php/aid/12032/Bollinger_threatens_English_wine_brand_over__Bollie__ad.html", date: "oct. 2025" }
     },
     {
-      level: "modere",
-      icon: Activity,
+      level: "modere", icon: Activity,
       title: "Changement climatique — Champagne",
       desc: "Gel printanier précoce, millésimes irréguliers. Budburst plus précoce = vulnérabilité accrue. Impact sur qualité et rendements.",
       action: "Investir en viticulture adaptative. Valoriser les millésimes atypiques comme signature.",
       source: { label: "Vinetur", url: "https://www.vinetur.com/en/2025070889521/climate-change-forces-global-wine-industry-to-adapt-as-traditional-regions-face-new-risks-and-emerging-areas-gain-prominence.html", date: "juil. 2025" }
     },
     {
-      level: "faible",
-      icon: TrendingDown,
+      level: "faible", icon: TrendingDown,
       title: "Déclin structurel marché France",
       desc: "Marché domestique : −63M bouteilles en 13 ans (181M en 2011 → 118M en 2024). Tendance de fond liée à la modération alcool.",
       action: "Réduire dépendance au marché FR. Renforcer présence dans marchés émergents.",
       source: { label: "The Drinks Business", url: "https://www.thedrinksbusiness.com/2025/03/the-top-10-markets-for-champagne-in-2024/", date: "mars 2025" }
     },
     {
-      level: "faible",
-      icon: Zap,
+      level: "faible", icon: Zap,
       title: "Génération Z & modération alcool",
       desc: "Consommateurs jeunes : shift vers 'conscientious consumption' (Forbes, août 2024). Marché no/low alcohol en croissance.",
       action: "Explorer positionnement 'occasion spéciale' pour justifier la valeur. Surveiller no-low.",
@@ -705,30 +663,26 @@ function SignauxFaibles() {
     modere: "oklch(0.72 0.12 75)",
     faible: "oklch(0.55 0.10 260)",
   };
-  const levelLabels: Record<string, string> = {
-    critique: "Critique",
-    modere: "Modéré",
-    faible: "Faible",
-  };
+  const levelLabels: Record<string, string> = { critique: "Critique", modere: "Modéré", faible: "Faible" };
 
   return (
     <div className="space-y-4">
       <SectionTitle icon={Radio} title="Signaux Faibles & Risques" subtitle="Réglementaire, supply, réputation, tendances" />
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {signals.map((s, i) => (
           <Card key={i}>
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 mt-0.5">
-                <div className="w-7 h-7 rounded flex items-center justify-center"
-                  style={{ backgroundColor: `${levelColors[s.level]}22` }}>
-                  <s.icon size={14} style={{ color: levelColors[s.level] }} />
+                <div className="w-8 h-8 rounded flex items-center justify-center"
+                  style={{ backgroundColor: `color-mix(in oklch, ${levelColors[s.level]} 15%, transparent)` }}>
+                  <s.icon size={15} style={{ color: levelColors[s.level] }} />
                 </div>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className="text-sm font-semibold" style={{ color: "oklch(0.95 0.008 80)", fontFamily: "'Playfair Display', serif" }}>{s.title}</span>
                   <span className="text-xs px-1.5 py-0.5 rounded font-medium"
-                    style={{ background: `${levelColors[s.level]}22`, color: levelColors[s.level] }}>
+                    style={{ background: `color-mix(in oklch, ${levelColors[s.level]} 15%, transparent)`, color: levelColors[s.level] }}>
                     {levelLabels[s.level]}
                   </span>
                 </div>
@@ -751,98 +705,52 @@ function SignauxFaibles() {
 function Recommandations() {
   const recs = [
     {
-      priority: 1,
-      impact: "Très élevé",
-      effort: "Élevé",
-      impactColor: "oklch(0.65 0.15 145)",
+      priority: 1, impact: "Très élevé", effort: "Élevé", impactColor: "oklch(0.65 0.15 145)",
       title: "Diversifier les marchés export face aux tarifs US",
       desc: "Accélérer le développement des marchés EAU (+21,6% en 2024), Canada, Corée du Sud et Singapour pour compenser la pression tarifaire sur les USA. Adapter le pricing et les partenariats distributeurs.",
-      kpi: "Part des marchés hors USA/UK > 40% d'ici 2027",
-      horizon: "Court terme (6–12 mois)",
+      kpi: "Part des marchés hors USA/UK > 40% d'ici 2027", horizon: "Court terme (6–12 mois)",
     },
     {
-      priority: 2,
-      impact: "Très élevé",
-      effort: "Moyen",
-      impactColor: "oklch(0.65 0.15 145)",
+      priority: 2, impact: "Très élevé", effort: "Moyen", impactColor: "oklch(0.65 0.15 145)",
       title: "Amplifier la présence digitale — réduire l'écart avec Dom Pérignon",
       desc: "Bollinger (252K Instagram) vs Dom Pérignon (799K) : écart de 3x. Investir dans une stratégie de contenu premium, collaborations avec créateurs de contenu vin/luxe, et campagnes Reels/Stories autour des partenariats 007 et Aston Martin.",
-      kpi: "Atteindre 400K followers Instagram d'ici fin 2026",
-      horizon: "Court terme (3–9 mois)",
+      kpi: "Atteindre 400K followers Instagram d'ici fin 2026", horizon: "Court terme (3–9 mois)",
     },
     {
-      priority: 3,
-      impact: "Élevé",
-      effort: "Moyen",
-      impactColor: "oklch(0.72 0.12 75)",
+      priority: 3, impact: "Élevé", effort: "Moyen", impactColor: "oklch(0.72 0.12 75)",
       title: "Capitaliser sur le Bicentenaire 2029 — stratégie événementielle",
       desc: "Lancer dès 2026 une communication progressive autour du bicentenaire (1829–2029). Hôtel 20 chambres à Aÿ = levier wine tourism premium. Créer des éditions limitées annuelles 'Countdown to 200'.",
-      kpi: "Lancement campagne bicentenaire Q3 2026, 3 éditions limitées d'ici 2029",
-      horizon: "Moyen terme (12–36 mois)",
+      kpi: "Lancement campagne bicentenaire Q3 2026, 3 éditions limitées d'ici 2029", horizon: "Moyen terme (12–36 mois)",
     },
     {
-      priority: 4,
-      impact: "Élevé",
-      effort: "Faible",
-      impactColor: "oklch(0.72 0.12 75)",
+      priority: 4, impact: "Élevé", effort: "Faible", impactColor: "oklch(0.72 0.12 75)",
       title: "Protéger et valoriser les Vieilles Vignes Françaises",
       desc: "Face à la menace phylloxera, investir dans la recherche agronomique et communiquer activement sur la rareté comme actif de valeur. Documenter l'histoire des parcelles pour renforcer le storytelling.",
-      kpi: "Programme de préservation VVF documenté et communiqué d'ici 2025",
-      horizon: "Urgent (0–6 mois)",
+      kpi: "Programme de préservation VVF documenté et communiqué d'ici 2025", horizon: "Urgent (0–6 mois)",
     },
     {
-      priority: 5,
-      impact: "Moyen",
-      effort: "Faible",
-      impactColor: "oklch(0.55 0.10 260)",
+      priority: 5, impact: "Moyen", effort: "Faible", impactColor: "oklch(0.55 0.10 260)",
       title: "Revoir la stratégie de protection de marque (post-affaire Folc)",
       desc: "L'affaire Folc a généré une couverture négative ('bullying') dans la presse UK. Adopter une approche plus nuancée : dialogue avant action légale, communication proactive sur la valeur de la marque Bollinger.",
-      kpi: "Zéro couverture négative 'bullying' dans les 12 prochains mois",
-      horizon: "Court terme (1–3 mois)",
+      kpi: "Zéro couverture négative 'bullying' dans les 12 prochains mois", horizon: "Court terme (1–3 mois)",
     },
-  ];
-
-  const impactEffortMatrix = [
-    { label: "Impact Très élevé / Effort Élevé", recs: [1], color: "oklch(0.65 0.15 145)" },
-    { label: "Impact Très élevé / Effort Moyen", recs: [2], color: "oklch(0.65 0.15 145)" },
-    { label: "Impact Élevé / Effort Moyen", recs: [3], color: "oklch(0.72 0.12 75)" },
-    { label: "Impact Élevé / Effort Faible", recs: [4], color: "oklch(0.72 0.12 75)" },
-    { label: "Impact Moyen / Effort Faible", recs: [5], color: "oklch(0.55 0.10 260)" },
   ];
 
   return (
     <div className="space-y-4">
       <SectionTitle icon={Lightbulb} title="Recommandations Stratégiques" subtitle="5 actions priorisées · Impact / Effort" />
-
-      <Card>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Matrice Impact / Effort</p>
-        <div className="space-y-1.5">
-          {impactEffortMatrix.map((m, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold flex-shrink-0"
-                style={{ background: `${m.color}22`, color: m.color }}>
-                {m.recs[0]}
-              </div>
-              <span className="text-xs" style={{ color: "oklch(0.65 0.008 75)" }}>{m.label}</span>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {recs.map((r, i) => (
           <Card key={i}>
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
+              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-base font-bold"
                 style={{ background: "oklch(0.72 0.12 75 / 0.15)", color: "oklch(0.72 0.12 75)", fontFamily: "'Playfair Display', serif" }}>
                 {r.priority}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 mb-1 flex-wrap">
-                  <p className="text-sm font-semibold" style={{ color: "oklch(0.95 0.008 80)", fontFamily: "'Playfair Display', serif" }}>{r.title}</p>
-                </div>
+                <p className="text-sm font-semibold mb-1" style={{ color: "oklch(0.95 0.008 80)", fontFamily: "'Playfair Display', serif" }}>{r.title}</p>
                 <div className="flex gap-2 mb-2 flex-wrap">
-                  <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: `${r.impactColor}22`, color: r.impactColor }}>
+                  <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: `color-mix(in oklch, ${r.impactColor} 15%, transparent)`, color: r.impactColor }}>
                     Impact : {r.impact}
                   </span>
                   <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "oklch(0.20 0.010 65)", color: "oklch(0.60 0.008 75)" }}>
@@ -890,112 +798,146 @@ function SourcesLog() {
   ];
 
   const typeColors: Record<string, string> = {
-    Marché: "oklch(0.55 0.10 260)",
-    Classement: "oklch(0.72 0.12 75)",
-    Presse: "oklch(0.65 0.15 145)",
-    Partenariat: "oklch(0.60 0.12 200)",
-    Risque: "oklch(0.60 0.20 25)",
-    Institutionnel: "oklch(0.65 0.10 280)",
-    ESG: "oklch(0.65 0.15 145)",
-    Prix: "oklch(0.72 0.12 75)",
-    Produit: "oklch(0.60 0.12 200)",
-    Réputation: "oklch(0.60 0.20 25)",
-    Digital: "oklch(0.55 0.10 260)",
+    Marché: "oklch(0.55 0.10 260)", Classement: "oklch(0.72 0.12 75)", Presse: "oklch(0.65 0.15 145)",
+    Partenariat: "oklch(0.60 0.12 200)", Risque: "oklch(0.60 0.20 25)", Institutionnel: "oklch(0.65 0.10 280)",
+    ESG: "oklch(0.65 0.15 145)", Prix: "oklch(0.72 0.12 75)", Produit: "oklch(0.60 0.12 200)",
+    Réputation: "oklch(0.60 0.20 25)", Digital: "oklch(0.55 0.10 260)",
   };
 
   return (
     <div className="space-y-4">
       <SectionTitle icon={BarChart2} title="Log des Sources" subtitle="18 sources vérifiées · Liens directs · Dates de publication" />
-      <Card>
-        <div className="space-y-2">
-          {sources.map((s, i) => (
-            <div key={i} className="flex items-start gap-2 py-1.5 border-b last:border-0" style={{ borderColor: "oklch(0.72 0.12 75 / 0.08)" }}>
-              <span className="text-xs font-bold flex-shrink-0 w-7" style={{ color: "oklch(0.72 0.12 75 / 0.60)" }}>{s.id}</span>
-              <div className="flex-1 min-w-0">
-                <a href={s.url} target="_blank" rel="noopener noreferrer"
-                  className="text-xs hover:opacity-80 transition-opacity flex items-start gap-1"
-                  style={{ color: "oklch(0.80 0.008 80)" }}>
-                  <span className="flex-1">{s.label}</span>
-                  <ExternalLink size={9} className="flex-shrink-0 mt-0.5" style={{ color: "oklch(0.72 0.12 75 / 0.60)" }} />
-                </a>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-xs px-1 py-0.5 rounded"
-                    style={{ background: `${typeColors[s.type] || "oklch(0.55 0.05 75)"}22`, color: typeColors[s.type] || "oklch(0.55 0.05 75)", fontSize: "10px" }}>
-                    {s.type}
-                  </span>
-                  <span className="text-xs" style={{ color: "oklch(0.45 0.008 75)" }}>{s.date}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <div className="space-y-2">
+            {sources.slice(0, 9).map((s, i) => (
+              <div key={i} className="flex items-start gap-2 py-1.5 border-b last:border-0" style={{ borderColor: "oklch(0.72 0.12 75 / 0.08)" }}>
+                <span className="text-xs font-bold flex-shrink-0 w-7" style={{ color: "oklch(0.72 0.12 75 / 0.60)" }}>{s.id}</span>
+                <div className="flex-1 min-w-0">
+                  <a href={s.url} target="_blank" rel="noopener noreferrer"
+                    className="text-xs hover:opacity-80 transition-opacity flex items-start gap-1"
+                    style={{ color: "oklch(0.80 0.008 80)" }}>
+                    <span className="flex-1">{s.label}</span>
+                    <ExternalLink size={9} className="flex-shrink-0 mt-0.5" style={{ color: "oklch(0.72 0.12 75 / 0.60)" }} />
+                  </a>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="px-1 py-0.5 rounded" style={{ background: `color-mix(in oklch, ${typeColors[s.type] || "oklch(0.55 0.05 75)"} 15%, transparent)`, color: typeColors[s.type] || "oklch(0.55 0.05 75)", fontSize: "10px" }}>
+                      {s.type}
+                    </span>
+                    <span className="text-xs" style={{ color: "oklch(0.45 0.008 75)" }}>{s.date}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </Card>
-    </div>
-  );
-}
-
-// ─── Navigation ───────────────────────────────────────────────────────────────
-const NAV_ITEMS = [
-  { id: "snapshot", label: "Snapshot", icon: LayoutDashboard },
-  { id: "position", label: "Position", icon: Star },
-  { id: "portfolio", label: "Portfolio", icon: Package },
-  { id: "prix", label: "Prix", icon: DollarSign },
-  { id: "distrib", label: "Distrib.", icon: Globe },
-  { id: "media", label: "Médias", icon: Megaphone },
-  { id: "digital", label: "Digital", icon: Smartphone },
-  { id: "risques", label: "Risques", icon: Shield },
-  { id: "reco", label: "Reco.", icon: Lightbulb },
-  { id: "sources", label: "Sources", icon: BarChart2 },
-];
-
-// ─── Header ───────────────────────────────────────────────────────────────────
-function Header({ activeSection, heroUrl }: { activeSection: string; heroUrl: string }) {
-  const active = NAV_ITEMS.find(n => n.id === activeSection);
-  return (
-    <div className="relative overflow-hidden" style={{ height: activeSection === "snapshot" ? "180px" : "80px" }}>
-      {activeSection === "snapshot" && (
-        <img src={heroUrl} alt="Bollinger" className="absolute inset-0 w-full h-full object-cover" />
-      )}
-      <div className="absolute inset-0" style={{
-        background: activeSection === "snapshot"
-          ? "linear-gradient(to bottom, oklch(0.10 0.012 65 / 0.3) 0%, oklch(0.10 0.012 65 / 0.85) 100%)"
-          : "oklch(0.12 0.010 65)"
-      }} />
-      <div className="relative z-10 h-full flex flex-col justify-end px-4 pb-4">
-        {activeSection === "snapshot" ? (
-          <>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-1 h-6 rounded-full" style={{ background: "oklch(0.72 0.12 75)" }} />
-              <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "oklch(0.72 0.12 75)", fontFamily: "'DM Sans', sans-serif" }}>
-                Competitive Intelligence
-              </span>
-            </div>
-            <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.5rem", fontWeight: 700, color: "oklch(0.97 0.005 80)", lineHeight: 1.2 }}>
-              Champagne<br />
-              <span className="text-gold-gradient">Bollinger</span>
-            </h1>
-            <p className="text-xs mt-1" style={{ color: "oklch(0.70 0.008 75)" }}>
-              Dashboard CI · Mars 2026 · 18 sources
-            </p>
-          </>
-        ) : (
-          <div className="flex items-center gap-3">
-            <div className="w-0.5 h-6 rounded-full" style={{ background: "oklch(0.72 0.12 75)" }} />
-            <div>
-              <p className="text-xs uppercase tracking-widest" style={{ color: "oklch(0.72 0.12 75)", fontFamily: "'DM Sans', sans-serif" }}>Bollinger CI</p>
-              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1rem", fontWeight: 600, color: "oklch(0.95 0.008 80)" }}>
-                {active?.label}
-              </h1>
-            </div>
+            ))}
           </div>
-        )}
+        </Card>
+        <Card>
+          <div className="space-y-2">
+            {sources.slice(9).map((s, i) => (
+              <div key={i} className="flex items-start gap-2 py-1.5 border-b last:border-0" style={{ borderColor: "oklch(0.72 0.12 75 / 0.08)" }}>
+                <span className="text-xs font-bold flex-shrink-0 w-7" style={{ color: "oklch(0.72 0.12 75 / 0.60)" }}>{s.id}</span>
+                <div className="flex-1 min-w-0">
+                  <a href={s.url} target="_blank" rel="noopener noreferrer"
+                    className="text-xs hover:opacity-80 transition-opacity flex items-start gap-1"
+                    style={{ color: "oklch(0.80 0.008 80)" }}>
+                    <span className="flex-1">{s.label}</span>
+                    <ExternalLink size={9} className="flex-shrink-0 mt-0.5" style={{ color: "oklch(0.72 0.12 75 / 0.60)" }} />
+                  </a>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="px-1 py-0.5 rounded" style={{ background: `color-mix(in oklch, ${typeColors[s.type] || "oklch(0.55 0.05 75)"} 15%, transparent)`, color: typeColors[s.type] || "oklch(0.55 0.05 75)", fontSize: "10px" }}>
+                      {s.type}
+                    </span>
+                    <span className="text-xs" style={{ color: "oklch(0.45 0.008 75)" }}>{s.date}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
     </div>
   );
 }
 
-// ─── Bottom Navigation ────────────────────────────────────────────────────────
-function BottomNav({ active, onSelect }: { active: string; onSelect: (id: string) => void }) {
+// ─── Navigation items ─────────────────────────────────────────────────────────
+const NAV_ITEMS = [
+  { id: "snapshot", label: "Snapshot", icon: LayoutDashboard },
+  { id: "position", label: "Positionnement", icon: Star },
+  { id: "portfolio", label: "Portefeuille", icon: Package },
+  { id: "prix", label: "Prix", icon: DollarSign },
+  { id: "distrib", label: "Distribution", icon: Globe },
+  { id: "media", label: "Part de Voix", icon: Megaphone },
+  { id: "digital", label: "Social & Digital", icon: Smartphone },
+  { id: "risques", label: "Signaux & Risques", icon: Shield },
+  { id: "reco", label: "Recommandations", icon: Lightbulb },
+  { id: "sources", label: "Sources", icon: BarChart2 },
+];
+
+const HERO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032620985/kLQsdpqWbkyuVgHJ6bT7Wg/bollinger-hero-RRuA5yNB5k8o3Z66uCQtXq.webp";
+
+// ─── Desktop Sidebar ──────────────────────────────────────────────────────────
+function DesktopSidebar({ active, onSelect }: { active: string; onSelect: (id: string) => void }) {
+  return (
+    <aside className="hidden md:flex flex-col flex-shrink-0"
+      style={{ width: "240px", background: "oklch(0.12 0.010 65)", borderRight: "1px solid oklch(0.72 0.12 75 / 0.15)", height: "100vh", position: "sticky", top: 0 }}>
+      {/* Logo area */}
+      <div className="p-5 pb-4" style={{ borderBottom: "1px solid oklch(0.72 0.12 75 / 0.15)" }}>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-1 h-5 rounded-full" style={{ background: "oklch(0.72 0.12 75)" }} />
+          <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "oklch(0.72 0.12 75)", fontFamily: "'DM Sans', sans-serif" }}>
+            Competitive Intelligence
+          </span>
+        </div>
+        <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.25rem", fontWeight: 700, color: "oklch(0.97 0.005 80)", lineHeight: 1.2 }}>
+          Champagne<br />
+          <span className="text-gold-gradient">Bollinger</span>
+        </h1>
+        <p className="text-xs mt-1.5" style={{ color: "oklch(0.50 0.008 75)" }}>
+          Dashboard CI · Mars 2026
+        </p>
+        <p className="text-xs" style={{ color: "oklch(0.50 0.008 75)" }}>
+          18 sources vérifiées
+        </p>
+      </div>
+
+      {/* Nav items */}
+      <nav className="flex-1 overflow-y-auto py-3 px-2">
+        {NAV_ITEMS.map((item) => {
+          const isActive = active === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => onSelect(item.id)}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md mb-0.5 transition-all duration-200 text-left"
+              style={{
+                background: isActive ? "oklch(0.72 0.12 75 / 0.12)" : "transparent",
+                border: isActive ? "1px solid oklch(0.72 0.12 75 / 0.25)" : "1px solid transparent",
+              }}>
+              <item.icon size={15} style={{ color: isActive ? "oklch(0.72 0.12 75)" : "oklch(0.45 0.008 75)", flexShrink: 0 }} />
+              <span className="text-sm font-medium" style={{
+                color: isActive ? "oklch(0.90 0.008 80)" : "oklch(0.55 0.008 75)",
+                fontFamily: "'DM Sans', sans-serif",
+              }}>
+                {item.label}
+              </span>
+              {isActive && <ChevronRight size={12} className="ml-auto flex-shrink-0" style={{ color: "oklch(0.72 0.12 75)" }} />}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Footer */}
+      <div className="p-4" style={{ borderTop: "1px solid oklch(0.72 0.12 75 / 0.15)" }}>
+        <p className="text-xs" style={{ color: "oklch(0.40 0.008 75)" }}>
+          © 2026 — Usage interne<br />Données publiques sourcées
+        </p>
+      </div>
+    </aside>
+  );
+}
+
+// ─── Mobile Bottom Nav ────────────────────────────────────────────────────────
+function MobileBottomNav({ active, onSelect }: { active: string; onSelect: (id: string) => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -1007,8 +949,8 @@ function BottomNav({ active, onSelect }: { active: string; onSelect: (id: string
   }, [active]);
 
   return (
-    <div className="bottom-nav fixed bottom-0 left-0 right-0 z-50">
-      <div ref={scrollRef} className="flex overflow-x-auto gap-0 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
+    <div className="md:hidden bottom-nav fixed bottom-0 left-0 right-0 z-50">
+      <div ref={scrollRef} className="flex overflow-x-auto" style={{ scrollbarWidth: "none" }}>
         {NAV_ITEMS.map((item) => {
           const isActive = active === item.id;
           return (
@@ -1022,13 +964,14 @@ function BottomNav({ active, onSelect }: { active: string; onSelect: (id: string
                   style={{ background: "oklch(0.72 0.12 75)" }} />
               )}
               <item.icon size={16} style={{ color: isActive ? "oklch(0.72 0.12 75)" : "oklch(0.50 0.008 75)" }} />
-              <span className="text-xs font-medium" style={{
+              <span style={{
                 color: isActive ? "oklch(0.72 0.12 75)" : "oklch(0.45 0.008 75)",
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: "9px",
+                fontWeight: 500,
                 letterSpacing: "0.02em"
               }}>
-                {item.label}
+                {item.label.split(" ")[0]}
               </span>
             </button>
           );
@@ -1038,12 +981,77 @@ function BottomNav({ active, onSelect }: { active: string; onSelect: (id: string
   );
 }
 
+// ─── Mobile Header ────────────────────────────────────────────────────────────
+function MobileHeader({ activeSection }: { activeSection: string }) {
+  const active = NAV_ITEMS.find(n => n.id === activeSection);
+  return (
+    <div className="md:hidden relative overflow-hidden" style={{ height: activeSection === "snapshot" ? "180px" : "72px" }}>
+      {activeSection === "snapshot" && (
+        <img src={HERO_URL} alt="Bollinger" className="absolute inset-0 w-full h-full object-cover" />
+      )}
+      <div className="absolute inset-0" style={{
+        background: activeSection === "snapshot"
+          ? "linear-gradient(to bottom, oklch(0.10 0.012 65 / 0.3) 0%, oklch(0.10 0.012 65 / 0.88) 100%)"
+          : "oklch(0.12 0.010 65)"
+      }} />
+      <div className="relative z-10 h-full flex flex-col justify-end px-4 pb-3">
+        {activeSection === "snapshot" ? (
+          <>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-1 h-5 rounded-full" style={{ background: "oklch(0.72 0.12 75)" }} />
+              <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "oklch(0.72 0.12 75)" }}>Competitive Intelligence</span>
+            </div>
+            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", fontWeight: 700, color: "oklch(0.97 0.005 80)", lineHeight: 1.2 }}>
+              Champagne <span className="text-gold-gradient">Bollinger</span>
+            </h1>
+            <p className="text-xs mt-1" style={{ color: "oklch(0.70 0.008 75)" }}>Dashboard CI · Mars 2026 · 18 sources</p>
+          </>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="w-0.5 h-5 rounded-full" style={{ background: "oklch(0.72 0.12 75)" }} />
+            <div>
+              <p className="text-xs uppercase tracking-widest" style={{ color: "oklch(0.72 0.12 75)" }}>Bollinger CI</p>
+              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "0.95rem", fontWeight: 600, color: "oklch(0.95 0.008 80)" }}>
+                {active?.label}
+              </h1>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Desktop Page Header ──────────────────────────────────────────────────────
+function DesktopPageHeader({ activeSection }: { activeSection: string }) {
+  const active = NAV_ITEMS.find(n => n.id === activeSection);
+  return (
+    <div className="hidden md:block relative overflow-hidden mb-6"
+      style={{ height: activeSection === "snapshot" ? "220px" : "0px", transition: "height 0.3s ease" }}>
+      {activeSection === "snapshot" && (
+        <>
+          <img src={HERO_URL} alt="Bollinger" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, oklch(0.10 0.012 65 / 0.2) 0%, oklch(0.10 0.012 65 / 0.85) 100%)" }} />
+          <div className="relative z-10 h-full flex flex-col justify-end px-6 pb-5">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-1 h-5 rounded-full" style={{ background: "oklch(0.72 0.12 75)" }} />
+              <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "oklch(0.72 0.12 75)" }}>Competitive Intelligence · Mars 2026</span>
+            </div>
+            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", fontWeight: 700, color: "oklch(0.97 0.005 80)", lineHeight: 1.2 }}>
+              Champagne <span className="text-gold-gradient">Bollinger</span>
+            </h1>
+            <p className="text-sm mt-1" style={{ color: "oklch(0.70 0.008 75)" }}>18 sources vérifiées · Competitive set 9 maisons · Données mars 2026</p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Home Component ──────────────────────────────────────────────────────
 export default function Home() {
   const [activeSection, setActiveSection] = useState("snapshot");
   const contentRef = useRef<HTMLDivElement>(null);
-
-  const HERO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032620985/kLQsdpqWbkyuVgHJ6bT7Wg/bollinger-hero-RRuA5yNB5k8o3Z66uCQtXq.webp";
 
   const handleSelect = (id: string) => {
     setActiveSection(id);
@@ -1069,17 +1077,30 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "oklch(0.10 0.012 65)", maxWidth: "480px", margin: "0 auto" }}>
-      <Header activeSection={activeSection} heroUrl={HERO_URL} />
+    <div className="min-h-screen flex" style={{ background: "oklch(0.10 0.012 65)" }}>
+      {/* Desktop Sidebar */}
+      <DesktopSidebar active={activeSection} onSelect={handleSelect} />
 
-      <div
-        ref={contentRef}
-        className="flex-1 overflow-y-auto px-4 pt-4 pb-24"
-        style={{ background: "oklch(0.10 0.012 65)" }}>
-        {renderSection()}
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile header */}
+        <MobileHeader activeSection={activeSection} />
+
+        {/* Desktop hero (snapshot only) */}
+        <DesktopPageHeader activeSection={activeSection} />
+
+        {/* Content */}
+        <div
+          ref={contentRef}
+          className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 pb-24 md:pb-8 pt-4 md:pt-0">
+          <div className="max-w-5xl">
+            {renderSection()}
+          </div>
+        </div>
       </div>
 
-      <BottomNav active={activeSection} onSelect={handleSelect} />
+      {/* Mobile bottom nav */}
+      <MobileBottomNav active={activeSection} onSelect={handleSelect} />
     </div>
   );
 }
