@@ -1,8 +1,8 @@
 /*
- * BOLLINGER CI DASHBOARD — Interactive Page
+ * BOLLINGER CI DASHBOARD — Lead Magnet Version
  * Design: Art Déco Prestige · Noir + Or Champagne
  * Responsive: Sidebar desktop (≥768px) + Bottom nav mobile (<768px)
- * Interactive: Recharts, animated KPIs, filterable tables, tooltips
+ * Access: Freemium (sections 1-2 libres) / Full (mot de passe "full-access")
  */
 
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -11,7 +11,7 @@ import {
   Star, BarChart2, Globe, Megaphone, Smartphone,
   Zap, Target, ChevronRight, Info, Award, MapPin, Package,
   DollarSign, Radio, Activity, Shield, Lightbulb, LayoutDashboard,
-  Search, Filter, ChevronDown, ChevronUp, ArrowUpDown, X
+  Search, ArrowUpDown, Lock, Unlock, LogOut
 } from "lucide-react";
 import {
   MarketVolumeChart, ExportMarketsChart, PriceComparisonChart,
@@ -19,9 +19,11 @@ import {
   SegmentPieChart, RiskMatrixChart, RecoChart, PortfolioScatterChart
 } from "@/components/BollingerCharts";
 import {
-  exportMarketsData, priceComparisonData, portfolioData, riskData,
+  exportMarketsData, priceComparisonData, portfolioData,
   recoData, socialData, admiredRankingData
 } from "@/lib/bollingerData";
+import { LockedSection, PasswordModal } from "@/components/LockedSection";
+import { useAccess } from "@/contexts/AccessContext";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type TrendDir = "up" | "down" | "flat";
@@ -103,8 +105,6 @@ function NDTag({ reason, method }: { reason: string; method: string }) {
 // ─── Animated KPI Counter ─────────────────────────────────────────────────────
 function AnimatedKPI({ value, suffix = "", prefix = "" }: { value: number; suffix?: string; prefix?: string }) {
   const [display, setDisplay] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-
   useEffect(() => {
     let start = 0;
     const duration = 1200;
@@ -116,11 +116,9 @@ function AnimatedKPI({ value, suffix = "", prefix = "" }: { value: number; suffi
     }, 16);
     return () => clearInterval(timer);
   }, [value]);
-
-  return <span ref={ref}>{prefix}{display.toLocaleString("fr-FR")}{suffix}</span>;
+  return <span>{prefix}{display.toLocaleString("fr-FR")}{suffix}</span>;
 }
 
-// ─── KPI Card ─────────────────────────────────────────────────────────────────
 function KPICard({ label, value, suffix = "", prefix = "", trend, trendVal, note, color = "oklch(0.72 0.12 75)" }: {
   label: string; value: number; suffix?: string; prefix?: string;
   trend?: TrendDir; trendVal?: string; note?: string; color?: string;
@@ -137,7 +135,7 @@ function KPICard({ label, value, suffix = "", prefix = "", trend, trendVal, note
   );
 }
 
-// ─── Section: Executive Snapshot ─────────────────────────────────────────────
+// ─── FREE SECTION: Executive Snapshot ────────────────────────────────────────
 function ExecutiveSnapshot() {
   const kpis = [
     { label: "Expéditions 2025", value: 266, suffix: "M btl", trend: "down" as TrendDir, trendVal: "−2% vs 2024", note: "3e année consécutive de baisse", color: "oklch(0.60 0.20 25)" },
@@ -160,17 +158,14 @@ function ExecutiveSnapshot() {
   return (
     <div className="space-y-5">
       <SectionTitle icon={LayoutDashboard} title="Executive Snapshot" subtitle="6 KPIs clés · Insights actionnables · Sources vérifiées" />
-      {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
         {kpis.map((k, i) => <KPICard key={i} {...k} />)}
       </div>
-      {/* Volume Chart */}
       <ChartCard title="Expéditions champagne mondiales 2019–2025"
         subtitle="Millions de bouteilles · Données Comité Champagne"
         source={{ label: "Comité Champagne", url: "https://thefinestbubble.com/news-and-reviews/champagne-shipments-fall-again-for-third-successive-year-down-2-in-2025/", date: "jan. 2026" }}>
         <MarketVolumeChart />
       </ChartCard>
-      {/* Insight Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {insights.map((ins, i) => (
           <Card key={i}>
@@ -198,7 +193,7 @@ function ExecutiveSnapshot() {
   );
 }
 
-// ─── Section: Positionnement ──────────────────────────────────────────────────
+// ─── FREE SECTION: Positionnement ────────────────────────────────────────────
 function Positionnement() {
   const competitors = [
     { name: "Bollinger", tier: "Prestige indépendant", dna: "Pinot Noir, fûts chêne, tradition", price: "55–600€", indie: true, bcorp: true, bond: true },
@@ -261,7 +256,7 @@ function Positionnement() {
           </div>
           <div className="space-y-2">
             {filtered.map((c, i) => (
-              <div key={i} className="flex items-start gap-2 py-1.5 border-b last:border-0 transition-all"
+              <div key={i} className="flex items-start gap-2 py-1.5 border-b last:border-0"
                 style={{ borderColor: "oklch(0.72 0.12 75 / 0.10)" }}>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
@@ -285,7 +280,7 @@ function Positionnement() {
   );
 }
 
-// ─── Section: Portefeuille ────────────────────────────────────────────────────
+// ─── LOCKED SECTION: Portefeuille ─────────────────────────────────────────────
 function Portefeuille() {
   const [sortBy, setSortBy] = useState<"price" | "score" | "tier">("price");
   const [search, setSearch] = useState("");
@@ -304,36 +299,26 @@ function Portefeuille() {
     .filter(g => g.name.toLowerCase().includes(search.toLowerCase()) || g.tier.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => sortBy === "price" ? b.priceVal - a.priceVal : sortBy === "score" ? b.scoreVal - a.scoreVal : a.tier.localeCompare(b.tier));
 
-  return (
+  const content = (
     <div className="space-y-5">
       <SectionTitle icon={Package} title="Portefeuille Produits" subtitle="Gammes, cuvées iconiques, innovations · Tri interactif" />
-      {/* Scatter chart */}
       <ChartCard title="Prix moyen vs Score critique — Cuvées Bollinger"
         subtitle="Taille du cercle = cuvée phare · Source : Wine Advocate, Wine-Searcher"
         source={{ label: "Wine-Searcher / Wine Advocate", url: "https://www.wine-searcher.com/find/bollinger", date: "mars 2026" }}>
         <PortfolioScatterChart />
       </ChartCard>
-
-      {/* Interactive table */}
       <Card>
         <div className="flex items-center gap-3 mb-4 flex-wrap">
           <div className="flex-1 relative min-w-40">
             <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "oklch(0.45 0.008 75)" }} />
-            <input
-              value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Rechercher une cuvée…"
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher une cuvée…"
               className="w-full pl-8 pr-3 py-1.5 rounded text-xs outline-none"
               style={{ background: "oklch(0.18 0.010 65)", border: "1px solid oklch(0.72 0.12 75 / 0.15)", color: "oklch(0.85 0.008 80)" }} />
           </div>
           <div className="flex gap-1">
             {(["price", "score", "tier"] as const).map(s => (
-              <button key={s} onClick={() => setSortBy(s)}
-                className="text-xs px-2 py-1 rounded flex items-center gap-1 transition-all"
-                style={{
-                  background: sortBy === s ? "oklch(0.72 0.12 75 / 0.20)" : "oklch(0.18 0.010 65)",
-                  color: sortBy === s ? "oklch(0.72 0.12 75)" : "oklch(0.50 0.008 75)",
-                  border: sortBy === s ? "1px solid oklch(0.72 0.12 75 / 0.30)" : "1px solid transparent"
-                }}>
+              <button key={s} onClick={() => setSortBy(s)} className="text-xs px-2 py-1 rounded flex items-center gap-1 transition-all"
+                style={{ background: sortBy === s ? "oklch(0.72 0.12 75 / 0.20)" : "oklch(0.18 0.010 65)", color: sortBy === s ? "oklch(0.72 0.12 75)" : "oklch(0.50 0.008 75)", border: sortBy === s ? "1px solid oklch(0.72 0.12 75 / 0.30)" : "1px solid transparent" }}>
                 <ArrowUpDown size={10} />
                 {s === "price" ? "Prix" : s === "score" ? "Score" : "Gamme"}
               </button>
@@ -348,7 +333,7 @@ function Portefeuille() {
                 <div className="flex items-center gap-2 flex-wrap mb-0.5">
                   <span className="text-sm font-semibold" style={{ color: "oklch(0.95 0.008 80)", fontFamily: "'Playfair Display', serif" }}>{g.name}</span>
                   {g.flagship && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "oklch(0.72 0.12 75 / 0.20)", color: "oklch(0.72 0.12 75)" }}>★ Phare</span>}
-                  {g.alert && <span className="text-xs px-1.5 py-0.5 rounded flex items-center gap-1" style={{ background: "oklch(0.60 0.20 25 / 0.15)", color: "oklch(0.60 0.20 25)" }}><AlertTriangle size={9} />Risque</span>}
+                  {(g as any).alert && <span className="text-xs px-1.5 py-0.5 rounded flex items-center gap-1" style={{ background: "oklch(0.60 0.20 25 / 0.15)", color: "oklch(0.60 0.20 25)" }}><AlertTriangle size={9} />Risque</span>}
                 </div>
                 <p className="text-xs" style={{ color: "oklch(0.72 0.12 75 / 0.70)" }}>{g.tier}</p>
                 <p className="text-xs mt-1 leading-relaxed" style={{ color: "oklch(0.60 0.008 75)" }}>{g.desc}</p>
@@ -360,16 +345,23 @@ function Portefeuille() {
             </div>
           ))}
         </div>
-        <p className="text-xs mt-3" style={{ color: "oklch(0.40 0.008 75)" }}>WA = Wine Advocate · JS = James Suckling · DC = Decanter · WS = Wine Spectator</p>
       </Card>
     </div>
   );
+
+  return (
+    <LockedSection
+      title="Portefeuille Produits — Analyse complète"
+      description="7 cuvées analysées avec prix, scores critiques (WA, JS, DC), alertes stratégiques et graphique Prix × Score."
+    >
+      {content}
+    </LockedSection>
+  );
 }
 
-// ─── Section: Prix ────────────────────────────────────────────────────────────
+// ─── LOCKED SECTION: Prix ─────────────────────────────────────────────────────
 function Prix() {
   const [viewMode, setViewMode] = useState<"chart" | "table">("chart");
-
   const tendances = [
     { label: "Premiumisation", dir: "up" as TrendDir, desc: "Segment prestige cuvée domine à 44,6% du marché en 2024" },
     { label: "Volumes globaux", dir: "down" as TrendDir, desc: "−9,2% en 2024, −2% en 2025 (3e année consécutive)" },
@@ -377,7 +369,7 @@ function Prix() {
     { label: "Prix Bollinger SC", dir: "up" as TrendDir, desc: "Hausse modérée, alignée avec inflation et premiumisation" },
   ];
 
-  return (
+  const content = (
     <div className="space-y-5">
       <SectionTitle icon={DollarSign} title="Analyse des Prix" subtitle="Fourchettes, tendances, comparatif concurrents" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -397,29 +389,20 @@ function Prix() {
               <SegmentPieChart />
             </ChartCard>
           </div>
-          <div className="mt-3"><SourceBadge source={{ label: "DataBridge / Comité Champagne", url: "https://www.databridgemarketresearch.com/reports/global-champagne-market", date: "2024" }} /></div>
         </Card>
-
         <Card>
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "oklch(0.72 0.12 75)" }}>Comparatif prix par gamme</p>
             <div className="flex gap-1">
               {(["chart", "table"] as const).map(v => (
-                <button key={v} onClick={() => setViewMode(v)}
-                  className="text-xs px-2 py-1 rounded transition-all"
-                  style={{
-                    background: viewMode === v ? "oklch(0.72 0.12 75 / 0.20)" : "oklch(0.18 0.010 65)",
-                    color: viewMode === v ? "oklch(0.72 0.12 75)" : "oklch(0.50 0.008 75)",
-                    border: viewMode === v ? "1px solid oklch(0.72 0.12 75 / 0.30)" : "1px solid transparent"
-                  }}>
+                <button key={v} onClick={() => setViewMode(v)} className="text-xs px-2 py-1 rounded transition-all"
+                  style={{ background: viewMode === v ? "oklch(0.72 0.12 75 / 0.20)" : "oklch(0.18 0.010 65)", color: viewMode === v ? "oklch(0.72 0.12 75)" : "oklch(0.50 0.008 75)", border: viewMode === v ? "1px solid oklch(0.72 0.12 75 / 0.30)" : "1px solid transparent" }}>
                   {v === "chart" ? "Graphique" : "Tableau"}
                 </button>
               ))}
             </div>
           </div>
-          {viewMode === "chart" ? (
-            <PriceComparisonChart />
-          ) : (
+          {viewMode === "chart" ? <PriceComparisonChart /> : (
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
@@ -431,8 +414,7 @@ function Prix() {
                 </thead>
                 <tbody>
                   {priceComparisonData.map((row, i) => (
-                    <tr key={i} className="transition-colors hover:bg-white/5"
-                      style={{ borderBottom: "1px solid oklch(0.72 0.12 75 / 0.06)", background: row.maison === "Bollinger" ? "oklch(0.72 0.12 75 / 0.05)" : "transparent" }}>
+                    <tr key={i} style={{ borderBottom: "1px solid oklch(0.72 0.12 75 / 0.06)", background: row.maison === "Bollinger" ? "oklch(0.72 0.12 75 / 0.05)" : "transparent" }}>
                       <td className="py-2 pr-3 font-medium" style={{ color: row.maison === "Bollinger" ? "oklch(0.72 0.12 75)" : "oklch(0.85 0.008 80)" }}>
                         {row.maison === "Bollinger" ? "★ " : ""}{row.maison}
                       </td>
@@ -447,47 +429,45 @@ function Prix() {
               </table>
             </div>
           )}
-          <div className="mt-3"><SourceBadge source={{ label: "Wine-Searcher", url: "https://www.wine-searcher.com/find/bollinger", date: "mars 2026" }} /></div>
         </Card>
       </div>
     </div>
   );
-}
-
-// ─── Section: Distribution ────────────────────────────────────────────────────
-function Distribution() {
-  const [sortEvol, setSortEvol] = useState(false);
-  const data = sortEvol
-    ? [...exportMarketsData].sort((a, b) => b.evol - a.evol)
-    : exportMarketsData;
 
   return (
+    <LockedSection
+      title="Analyse des Prix — Comparatif 9 maisons"
+      description="Fourchettes de prix par gamme, tendances 2024–2026, comparatif concurrents et graphique interactif Prix × Segment."
+    >
+      {content}
+    </LockedSection>
+  );
+}
+
+// ─── LOCKED SECTION: Distribution ────────────────────────────────────────────
+function Distribution() {
+  const [sortEvol, setSortEvol] = useState(false);
+  const data = sortEvol ? [...exportMarketsData].sort((a, b) => b.evol - a.evol) : exportMarketsData;
+
+  const content = (
     <div className="space-y-5">
       <SectionTitle icon={Globe} title="Distribution" subtitle="On-trade / Off-trade · Géographies clés · Canaux" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ChartCard title="Top 10 marchés export champagne 2024"
-          subtitle="Volumes en millions de bouteilles · Or = croissance, Bleu = recul"
+          subtitle="Millions de bouteilles · Or = croissance, Bleu = recul"
           source={{ label: "The Drinks Business", url: "https://www.thedrinksbusiness.com/2025/03/the-top-10-markets-for-champagne-in-2024/", date: "mars 2025" }}>
           <ExportMarketsChart />
         </ChartCard>
-
         <div className="space-y-4">
-          <ChartCard title="Canaux de distribution champagne"
-            subtitle="Part en volume · On-trade dominant"
+          <ChartCard title="Canaux de distribution champagne" subtitle="Part en volume · On-trade dominant"
             source={{ label: "Fortune Business Insights", url: "https://www.fortunebusinessinsights.com/champagne-market-112162", date: "fév. 2026" }}>
             <ChannelPieChart />
           </ChartCard>
-
           <Card>
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "oklch(0.72 0.12 75)" }}>Détail marchés</p>
-              <button onClick={() => setSortEvol(!sortEvol)}
-                className="text-xs px-2 py-1 rounded flex items-center gap-1 transition-all"
-                style={{
-                  background: sortEvol ? "oklch(0.72 0.12 75 / 0.20)" : "oklch(0.18 0.010 65)",
-                  color: sortEvol ? "oklch(0.72 0.12 75)" : "oklch(0.50 0.008 75)",
-                  border: sortEvol ? "1px solid oklch(0.72 0.12 75 / 0.30)" : "1px solid transparent"
-                }}>
+              <button onClick={() => setSortEvol(!sortEvol)} className="text-xs px-2 py-1 rounded flex items-center gap-1 transition-all"
+                style={{ background: sortEvol ? "oklch(0.72 0.12 75 / 0.20)" : "oklch(0.18 0.010 65)", color: sortEvol ? "oklch(0.72 0.12 75)" : "oklch(0.50 0.008 75)", border: sortEvol ? "1px solid oklch(0.72 0.12 75 / 0.30)" : "1px solid transparent" }}>
                 <ArrowUpDown size={10} /> {sortEvol ? "Tri : évolution" : "Tri : volume"}
               </button>
             </div>
@@ -506,11 +486,20 @@ function Distribution() {
       </div>
     </div>
   );
+
+  return (
+    <LockedSection
+      title="Distribution — Géographies & Canaux"
+      description="Top 10 marchés export 2024, canaux on-trade/off-trade/e-commerce et tableau trié par croissance ou volume."
+    >
+      {content}
+    </LockedSection>
+  );
 }
 
-// ─── Section: Part de Voix ────────────────────────────────────────────────────
+// ─── LOCKED SECTION: Part de Voix ────────────────────────────────────────────
 function PartDeVoix() {
-  return (
+  const content = (
     <div className="space-y-5">
       <SectionTitle icon={Megaphone} title="Part de Voix & Médias" subtitle="Classements, presse spécialisée, actifs médiatiques" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -519,48 +508,40 @@ function PartDeVoix() {
           source={{ label: "Drinks International / Wine Intelligence", url: "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports/most-admired-champagne-brands-2026-roederer-krug-and-bollinger-lead-again", date: "mars 2026" }}>
           <AdmiredRankingChart />
         </ChartCard>
-
-        <div className="space-y-4">
-          <Card>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Actifs médiatiques Bollinger</p>
-            {[
-              { asset: "Partenariat James Bond (007)", impact: "Très élevé", type: "Entertain.", color: "oklch(0.72 0.12 75)" },
-              { asset: "Partenariat Aston Martin", impact: "Élevé", type: "Luxe auto", color: "oklch(0.65 0.15 145)" },
-              { asset: "Royal Warrant Charles III", impact: "Élevé", type: "Institutionnel", color: "oklch(0.65 0.15 145)" },
-              { asset: "B Corp certification", impact: "Moyen", type: "ESG/Presse", color: "oklch(0.55 0.10 260)" },
-              { asset: "Bicentenaire 2029", impact: "Fort (futur)", type: "Événementiel", color: "oklch(0.72 0.12 75)" },
-              { asset: "VVF — menace extinction", impact: "Élevé (risque)", type: "Presse spéc.", color: "oklch(0.60 0.20 25)" },
-            ].map((a, i) => (
-              <div key={i} className="flex items-center gap-2 py-1.5 border-b last:border-0"
-                style={{ borderColor: "oklch(0.72 0.12 75 / 0.08)" }}>
-                <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: a.color }} />
-                <span className="text-xs flex-1 font-medium" style={{ color: "oklch(0.85 0.008 80)" }}>{a.asset}</span>
-                <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "oklch(0.20 0.010 65)", color: "oklch(0.65 0.008 75)" }}>{a.type}</span>
-                <span className="text-xs font-medium w-24 text-right" style={{ color: a.color }}>{a.impact}</span>
-              </div>
-            ))}
-          </Card>
-
-          <Card>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "oklch(0.72 0.12 75)" }}>Données N/D</p>
-            <p className="text-xs mb-1" style={{ color: "oklch(0.60 0.010 75)" }}>
-              <span style={{ color: "oklch(0.90 0.008 80)" }}>Part de voix médias (%) :</span>{" "}
-              <NDTag reason="Données propriétaires Meltwater/Cision non accessibles publiquement." method="Abonnement Meltwater ou Cision pour suivi mentions presse + SOV mensuel." />
-            </p>
-            <p className="text-xs" style={{ color: "oklch(0.60 0.010 75)" }}>
-              <span style={{ color: "oklch(0.90 0.008 80)" }}>Budget marketing Bollinger :</span>{" "}
-              <NDTag reason="Maison indépendante non cotée, pas de publication de comptes détaillés." method="Demande directe ou estimation via Kantar AdIntel (dépenses publicitaires mesurées)." />
-            </p>
-          </Card>
-        </div>
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Actifs médiatiques Bollinger</p>
+          {[
+            { asset: "Partenariat James Bond (007)", impact: "Très élevé", color: "oklch(0.72 0.12 75)" },
+            { asset: "Partenariat Aston Martin", impact: "Élevé", color: "oklch(0.65 0.15 145)" },
+            { asset: "Royal Warrant Charles III", impact: "Élevé", color: "oklch(0.65 0.15 145)" },
+            { asset: "B Corp certification", impact: "Moyen", color: "oklch(0.55 0.10 260)" },
+            { asset: "Bicentenaire 2029", impact: "Fort (futur)", color: "oklch(0.72 0.12 75)" },
+            { asset: "VVF — menace extinction", impact: "Élevé (risque)", color: "oklch(0.60 0.20 25)" },
+          ].map((a, i) => (
+            <div key={i} className="flex items-center gap-2 py-1.5 border-b last:border-0" style={{ borderColor: "oklch(0.72 0.12 75 / 0.08)" }}>
+              <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: a.color }} />
+              <span className="text-xs flex-1 font-medium" style={{ color: "oklch(0.85 0.008 80)" }}>{a.asset}</span>
+              <span className="text-xs font-medium" style={{ color: a.color }}>{a.impact}</span>
+            </div>
+          ))}
+        </Card>
       </div>
     </div>
   );
+
+  return (
+    <LockedSection
+      title="Part de Voix & Médias — Analyse complète"
+      description="Classement Most Admired 2025–2026, actifs médiatiques valorisés et données SOV avec sources vérifiées."
+    >
+      {content}
+    </LockedSection>
+  );
 }
 
-// ─── Section: Social & Digital ────────────────────────────────────────────────
+// ─── LOCKED SECTION: Social & Digital ────────────────────────────────────────
 function SocialDigital() {
-  return (
+  const content = (
     <div className="space-y-5">
       <SectionTitle icon={Smartphone} title="Social & Digital" subtitle="Croissance, engagement, campagnes clés" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -570,105 +551,82 @@ function SocialDigital() {
           <SocialFollowersChart />
           <div className="mt-2 p-2 rounded text-xs" style={{ background: "oklch(0.60 0.20 25 / 0.10)", border: "1px solid oklch(0.60 0.20 25 / 0.20)" }}>
             <span style={{ color: "oklch(0.60 0.20 25)" }}>⚠ Écart notable :</span>
-            <span style={{ color: "oklch(0.65 0.008 75)" }}> Dom Pérignon (799K) dépasse Bollinger (252K) de 3x sur Instagram. Opportunité de croissance digitale.</span>
+            <span style={{ color: "oklch(0.65 0.008 75)" }}> Dom Pérignon (799K) dépasse Bollinger (252K) de 3x. Opportunité de croissance digitale.</span>
           </div>
         </ChartCard>
-
         <Card>
           <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Campagnes digitales notables</p>
           {[
-            { name: "Special Cuvée 007 Launch", date: "Oct. 2025", type: "Campagne intégrée", desc: "Photographie dramatique + animation bold. Partenariat Datum Creative Partners." },
-            { name: "Aston Martin Partnership", date: "Sept. 2025", type: "Partenariat luxe", desc: "Activation globale, expériences exclusives, cross-promotion." },
-            { name: "Royal Warrant Renewal", date: "Déc. 2024", type: "PR institutionnel", desc: "Annonce renouvellement Royal Warrant Charles III, 140 ans." },
-            { name: "Bicentenary 2029 Teaser", date: "2024–2025", type: "Campagne long terme", desc: "Construction hôtel + centre touristique Aÿ, communication progressive." },
+            { name: "Special Cuvée 007 Launch", date: "Oct. 2025", desc: "Photographie dramatique + animation bold. Partenariat Datum Creative Partners." },
+            { name: "Aston Martin Partnership", date: "Sept. 2025", desc: "Activation globale, expériences exclusives, cross-promotion." },
+            { name: "Royal Warrant Renewal", date: "Déc. 2024", desc: "Annonce renouvellement Royal Warrant Charles III, 140 ans." },
+            { name: "Bicentenary 2029 Teaser", date: "2024–2025", desc: "Construction hôtel + centre touristique Aÿ, communication progressive." },
           ].map((c, i) => (
-            <div key={i} className="pb-3 mb-3 border-b last:border-0 last:mb-0 last:pb-0"
-              style={{ borderColor: "oklch(0.72 0.12 75 / 0.10)" }}>
+            <div key={i} className="pb-3 mb-3 border-b last:border-0 last:mb-0 last:pb-0" style={{ borderColor: "oklch(0.72 0.12 75 / 0.10)" }}>
               <div className="flex items-start justify-between gap-2 mb-1">
                 <span className="text-xs font-semibold" style={{ color: "oklch(0.90 0.008 80)", fontFamily: "'Playfair Display', serif" }}>{c.name}</span>
                 <span className="text-xs flex-shrink-0" style={{ color: "oklch(0.72 0.12 75)" }}>{c.date}</span>
               </div>
-              <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "oklch(0.20 0.010 65)", color: "oklch(0.60 0.008 75)" }}>{c.type}</span>
-              <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "oklch(0.60 0.010 75)" }}>{c.desc}</p>
+              <p className="text-xs leading-relaxed" style={{ color: "oklch(0.60 0.010 75)" }}>{c.desc}</p>
             </div>
           ))}
         </Card>
       </div>
     </div>
   );
-}
-
-// ─── Section: Signaux Faibles ─────────────────────────────────────────────────
-function SignauxFaibles() {
-  const [filter, setFilter] = useState<"all" | "critique" | "modere" | "faible">("all");
-
-  const signals = [
-    { level: "critique", icon: AlertTriangle, title: "Tarifs douaniers US (Trump)", desc: "Exports vins français −39% en Q4 2025. USA = 1er marché export champagne (820M€ en 2024). Tarifs 10% en vigueur depuis avril 2025.", action: "Diversifier vers EAU (+21,6%), Canada, Corée du Sud. Réviser pricing US.", source: { label: "Bloomberg", url: "https://www.bloomberg.com/news/articles/2026-02-06/french-champagne-and-perfume-feel-the-pain-of-trump-tariffs", date: "fév. 2026" } },
-    { level: "critique", icon: AlertTriangle, title: "Phylloxera — Vieilles Vignes Françaises", desc: "Les vignes non greffées de Bollinger (VVF) sont menacées par le phylloxera. Production ultra-confidentielle (~3 000 btl/an) pourrait disparaître.", action: "Accélérer recherche agronomique. Communiquer sur la rareté comme actif de valeur.", source: { label: "Champagne Club", url: "https://www.champagneclub.com/champagnes-rare-jewel-at-risk-of-extinction/", date: "mars 2024" } },
-    { level: "modere", icon: Shield, title: "Risque réputation — Affaire Folc", desc: "Bollinger (via Mentzendorff) a envoyé un cease & desist à la marque anglaise Folc (oct. 2025) pour usage du terme 'Bollie'. Couverture négative dans la presse UK.", action: "Revoir stratégie de protection de marque pour éviter image de 'bully'.", source: { label: "The Times", url: "https://drinksint.com/news/fullstory.php/aid/12032/Bollinger_threatens_English_wine_brand_over__Bollie__ad.html", date: "oct. 2025" } },
-    { level: "modere", icon: Activity, title: "Changement climatique — Champagne", desc: "Gel printanier précoce, millésimes irréguliers. Budburst plus précoce = vulnérabilité accrue. Impact sur qualité et rendements.", action: "Investir en viticulture adaptative. Valoriser les millésimes atypiques comme signature.", source: { label: "Vinetur", url: "https://www.vinetur.com/en/2025070889521/climate-change-forces-global-wine-industry-to-adapt-as-traditional-regions-face-new-risks-and-emerging-areas-gain-prominence.html", date: "juil. 2025" } },
-    { level: "faible", icon: TrendingDown, title: "Déclin structurel marché France", desc: "Marché domestique : −63M bouteilles en 13 ans (181M en 2011 → 118M en 2024). Tendance de fond liée à la modération alcool.", action: "Réduire dépendance au marché FR. Renforcer présence dans marchés émergents.", source: { label: "The Drinks Business", url: "https://www.thedrinksbusiness.com/2025/03/the-top-10-markets-for-champagne-in-2024/", date: "mars 2025" } },
-    { level: "faible", icon: Zap, title: "Génération Z & modération alcool", desc: "Consommateurs jeunes : shift vers 'conscientious consumption'. Marché no/low alcohol en croissance.", action: "Explorer positionnement 'occasion spéciale' pour justifier la valeur. Surveiller no-low.", source: { label: "Forbes", url: "https://www.forbes.com/sites/joemicallef/2024/08/13/how-young-consumers-are-changing-the-marketing-of-luxury-beverages/", date: "août 2024" } },
-  ];
-
-  const levelColors: Record<string, string> = {
-    critique: "oklch(0.60 0.20 25)",
-    modere: "oklch(0.72 0.12 75)",
-    faible: "oklch(0.55 0.10 260)",
-  };
-  const levelLabels: Record<string, string> = { critique: "Critique", modere: "Modéré", faible: "Faible" };
-
-  const filtered = signals.filter(s => filter === "all" || s.level === filter);
 
   return (
+    <LockedSection
+      title="Social & Digital — Benchmarks & Campagnes"
+      description="Comparatif Instagram 9 maisons, taux d'engagement estimés et analyse des 4 campagnes digitales clés 2024–2025."
+    >
+      {content}
+    </LockedSection>
+  );
+}
+
+// ─── LOCKED SECTION: Signaux Faibles ─────────────────────────────────────────
+function SignauxFaibles() {
+  const [filter, setFilter] = useState<"all" | "critique" | "modere" | "faible">("all");
+  const signals = [
+    { level: "critique", icon: AlertTriangle, title: "Tarifs douaniers US (Trump)", desc: "Exports vins français −39% en Q4 2025. USA = 1er marché export champagne (820M€ en 2024).", action: "Diversifier vers EAU (+21,6%), Canada, Corée du Sud.", source: { label: "Bloomberg", url: "https://www.bloomberg.com/news/articles/2026-02-06/french-champagne-and-perfume-feel-the-pain-of-trump-tariffs", date: "fév. 2026" } },
+    { level: "critique", icon: AlertTriangle, title: "Phylloxera — Vieilles Vignes Françaises", desc: "Les vignes non greffées de Bollinger (VVF) sont menacées par le phylloxera. ~3 000 btl/an.", action: "Accélérer recherche agronomique. Communiquer sur la rareté.", source: { label: "Champagne Club", url: "https://www.champagneclub.com/champagnes-rare-jewel-at-risk-of-extinction/", date: "mars 2024" } },
+    { level: "modere", icon: Shield, title: "Risque réputation — Affaire Folc", desc: "Bollinger a envoyé un cease & desist à la marque anglaise Folc (oct. 2025). Couverture négative UK.", action: "Revoir stratégie de protection de marque.", source: { label: "The Times", url: "https://drinksint.com/news/fullstory.php/aid/12032/Bollinger_threatens_English_wine_brand_over__Bollie__ad.html", date: "oct. 2025" } },
+    { level: "modere", icon: Activity, title: "Changement climatique — Champagne", desc: "Gel printanier précoce, millésimes irréguliers. Budburst plus précoce = vulnérabilité accrue.", action: "Investir en viticulture adaptative.", source: { label: "Vinetur", url: "https://www.vinetur.com/en/2025070889521/climate-change-forces-global-wine-industry-to-adapt-as-traditional-regions-face-new-risks-and-emerging-areas-gain-prominence.html", date: "juil. 2025" } },
+    { level: "faible", icon: TrendingDown, title: "Déclin structurel marché France", desc: "Marché domestique : −63M bouteilles en 13 ans (181M en 2011 → 118M en 2024).", action: "Réduire dépendance au marché FR.", source: { label: "The Drinks Business", url: "https://www.thedrinksbusiness.com/2025/03/the-top-10-markets-for-champagne-in-2024/", date: "mars 2025" } },
+    { level: "faible", icon: Zap, title: "Génération Z & modération alcool", desc: "Shift vers 'conscientious consumption'. Marché no/low alcohol en croissance.", action: "Explorer positionnement 'occasion spéciale'.", source: { label: "Forbes", url: "https://www.forbes.com/sites/joemicallef/2024/08/13/how-young-consumers-are-changing-the-marketing-of-luxury-beverages/", date: "août 2024" } },
+  ];
+
+  const levelColors: Record<string, string> = { critique: "oklch(0.60 0.20 25)", modere: "oklch(0.72 0.12 75)", faible: "oklch(0.55 0.10 260)" };
+  const levelLabels: Record<string, string> = { critique: "Critique", modere: "Modéré", faible: "Faible" };
+  const filtered = signals.filter(s => filter === "all" || s.level === filter);
+
+  const content = (
     <div className="space-y-5">
       <SectionTitle icon={Radio} title="Signaux Faibles & Risques" subtitle="Réglementaire, supply, réputation, tendances" />
-      {/* Risk Matrix */}
-      <ChartCard title="Matrice risques — Impact vs Probabilité"
-        subtitle="Taille du cercle proportionnelle au niveau de risque combiné">
+      <ChartCard title="Matrice risques — Impact vs Probabilité" subtitle="Taille du cercle proportionnelle au niveau de risque combiné">
         <RiskMatrixChart />
-        <div className="flex gap-3 mt-2 flex-wrap">
-          {[{ c: "#E05252", l: "Critique" }, { c: "#C9A84C", l: "Modéré" }, { c: "#5B8BC9", l: "Faible" }].map(({ c, l }) => (
-            <div key={l} className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />
-              <span className="text-xs" style={{ color: "oklch(0.60 0.008 75)" }}>{l}</span>
-            </div>
-          ))}
-        </div>
       </ChartCard>
-
-      {/* Filter */}
       <div className="flex gap-2 flex-wrap">
         {(["all", "critique", "modere", "faible"] as const).map(f => (
-          <button key={f} onClick={() => setFilter(f)}
-            className="text-xs px-3 py-1.5 rounded transition-all"
-            style={{
-              background: filter === f ? (f === "all" ? "oklch(0.72 0.12 75 / 0.20)" : `color-mix(in oklch, ${levelColors[f] || "oklch(0.72 0.12 75)"} 20%, transparent)`) : "oklch(0.18 0.010 65)",
-              color: filter === f ? (f === "all" ? "oklch(0.72 0.12 75)" : levelColors[f]) : "oklch(0.50 0.008 75)",
-              border: `1px solid ${filter === f ? (f === "all" ? "oklch(0.72 0.12 75 / 0.30)" : `color-mix(in oklch, ${levelColors[f] || "oklch(0.72 0.12 75)"} 40%, transparent)`) : "transparent"}`
-            }}>
+          <button key={f} onClick={() => setFilter(f)} className="text-xs px-3 py-1.5 rounded transition-all"
+            style={{ background: filter === f ? (f === "all" ? "oklch(0.72 0.12 75 / 0.20)" : `color-mix(in oklch, ${levelColors[f] || "oklch(0.72 0.12 75)"} 20%, transparent)`) : "oklch(0.18 0.010 65)", color: filter === f ? (f === "all" ? "oklch(0.72 0.12 75)" : levelColors[f]) : "oklch(0.50 0.008 75)", border: `1px solid ${filter === f ? (f === "all" ? "oklch(0.72 0.12 75 / 0.30)" : `color-mix(in oklch, ${levelColors[f] || "oklch(0.72 0.12 75)"} 40%, transparent)`) : "transparent"}` }}>
             {f === "all" ? "Tous" : levelLabels[f]}
           </button>
         ))}
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {filtered.map((s, i) => (
           <Card key={i}>
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 mt-0.5">
-                <div className="w-8 h-8 rounded flex items-center justify-center"
-                  style={{ backgroundColor: `color-mix(in oklch, ${levelColors[s.level]} 15%, transparent)` }}>
-                  <s.icon size={15} style={{ color: levelColors[s.level] }} />
-                </div>
+              <div className="w-8 h-8 rounded flex items-center justify-center flex-shrink-0 mt-0.5"
+                style={{ backgroundColor: `color-mix(in oklch, ${levelColors[s.level]} 15%, transparent)` }}>
+                <s.icon size={15} style={{ color: levelColors[s.level] }} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className="text-sm font-semibold" style={{ color: "oklch(0.95 0.008 80)", fontFamily: "'Playfair Display', serif" }}>{s.title}</span>
-                  <span className="text-xs px-1.5 py-0.5 rounded font-medium"
-                    style={{ background: `color-mix(in oklch, ${levelColors[s.level]} 15%, transparent)`, color: levelColors[s.level] }}>
-                    {levelLabels[s.level]}
-                  </span>
+                  <span className="text-xs px-1.5 py-0.5 rounded font-medium" style={{ background: `color-mix(in oklch, ${levelColors[s.level]} 15%, transparent)`, color: levelColors[s.level] }}>{levelLabels[s.level]}</span>
                 </div>
                 <p className="text-xs leading-relaxed mb-2" style={{ color: "oklch(0.65 0.008 75)" }}>{s.desc}</p>
                 <div className="flex items-start gap-1 mb-2">
@@ -683,23 +641,31 @@ function SignauxFaibles() {
       </div>
     </div>
   );
-}
-
-// ─── Section: Recommandations ─────────────────────────────────────────────────
-function Recommandations() {
-  const recs = [
-    { priority: 1, impact: "Très élevé", effort: "Élevé", impactColor: "oklch(0.65 0.15 145)", impactVal: 9, effortVal: 7, title: "Diversifier les marchés export face aux tarifs US", desc: "Accélérer le développement des marchés EAU (+21,6%), Canada, Corée du Sud et Singapour pour compenser la pression tarifaire sur les USA.", kpi: "Part des marchés hors USA/UK > 40% d'ici 2027", horizon: "Court terme (6–12 mois)" },
-    { priority: 2, impact: "Très élevé", effort: "Moyen", impactColor: "oklch(0.65 0.15 145)", impactVal: 8, effortVal: 5, title: "Amplifier la présence digitale — réduire l'écart avec Dom Pérignon", desc: "Bollinger (252K Instagram) vs Dom Pérignon (799K) : écart de 3x. Investir dans une stratégie de contenu premium, collaborations avec créateurs de contenu vin/luxe.", kpi: "Atteindre 400K followers Instagram d'ici fin 2026", horizon: "Court terme (3–9 mois)" },
-    { priority: 3, impact: "Élevé", effort: "Moyen", impactColor: "oklch(0.72 0.12 75)", impactVal: 8, effortVal: 6, title: "Capitaliser sur le Bicentenaire 2029 — stratégie événementielle", desc: "Lancer dès 2026 une communication progressive autour du bicentenaire (1829–2029). Hôtel 20 chambres à Aÿ = levier wine tourism premium.", kpi: "Lancement campagne bicentenaire Q3 2026, 3 éditions limitées d'ici 2029", horizon: "Moyen terme (12–36 mois)" },
-    { priority: 4, impact: "Élevé", effort: "Faible", impactColor: "oklch(0.72 0.12 75)", impactVal: 7, effortVal: 3, title: "Protéger et valoriser les Vieilles Vignes Françaises", desc: "Face à la menace phylloxera, investir dans la recherche agronomique et communiquer activement sur la rareté comme actif de valeur.", kpi: "Programme de préservation VVF documenté et communiqué d'ici 2025", horizon: "Urgent (0–6 mois)" },
-    { priority: 5, impact: "Moyen", effort: "Faible", impactColor: "oklch(0.55 0.10 260)", impactVal: 5, effortVal: 2, title: "Revoir la stratégie de protection de marque (post-affaire Folc)", desc: "L'affaire Folc a généré une couverture négative ('bullying') dans la presse UK. Adopter une approche plus nuancée : dialogue avant action légale.", kpi: "Zéro couverture négative 'bullying' dans les 12 prochains mois", horizon: "Court terme (1–3 mois)" },
-  ];
 
   return (
+    <LockedSection
+      title="Signaux Faibles & Risques — 6 risques analysés"
+      description="Matrice Impact × Probabilité, 6 risques classifiés (critique/modéré/faible) avec actions prioritaires et sources."
+    >
+      {content}
+    </LockedSection>
+  );
+}
+
+// ─── LOCKED SECTION: Recommandations ─────────────────────────────────────────
+function Recommandations() {
+  const recs = [
+    { priority: 1, impact: "Très élevé", effort: "Élevé", impactColor: "oklch(0.65 0.15 145)", impactVal: 9, effortVal: 7, title: "Diversifier les marchés export face aux tarifs US", desc: "Accélérer le développement des marchés EAU (+21,6%), Canada, Corée du Sud et Singapour.", kpi: "Part des marchés hors USA/UK > 40% d'ici 2027", horizon: "Court terme (6–12 mois)" },
+    { priority: 2, impact: "Très élevé", effort: "Moyen", impactColor: "oklch(0.65 0.15 145)", impactVal: 8, effortVal: 5, title: "Amplifier la présence digitale — réduire l'écart avec Dom Pérignon", desc: "Bollinger (252K Instagram) vs Dom Pérignon (799K) : écart de 3x. Investir dans une stratégie de contenu premium.", kpi: "Atteindre 400K followers Instagram d'ici fin 2026", horizon: "Court terme (3–9 mois)" },
+    { priority: 3, impact: "Élevé", effort: "Moyen", impactColor: "oklch(0.72 0.12 75)", impactVal: 8, effortVal: 6, title: "Capitaliser sur le Bicentenaire 2029 — stratégie événementielle", desc: "Lancer dès 2026 une communication progressive autour du bicentenaire (1829–2029).", kpi: "Lancement campagne bicentenaire Q3 2026, 3 éditions limitées d'ici 2029", horizon: "Moyen terme (12–36 mois)" },
+    { priority: 4, impact: "Élevé", effort: "Faible", impactColor: "oklch(0.72 0.12 75)", impactVal: 7, effortVal: 3, title: "Protéger et valoriser les Vieilles Vignes Françaises", desc: "Face à la menace phylloxera, investir dans la recherche agronomique et communiquer sur la rareté.", kpi: "Programme de préservation VVF documenté et communiqué d'ici 2025", horizon: "Urgent (0–6 mois)" },
+    { priority: 5, impact: "Moyen", effort: "Faible", impactColor: "oklch(0.55 0.10 260)", impactVal: 5, effortVal: 2, title: "Revoir la stratégie de protection de marque (post-affaire Folc)", desc: "L'affaire Folc a généré une couverture négative dans la presse UK. Adopter une approche plus nuancée.", kpi: "Zéro couverture négative 'bullying' dans les 12 prochains mois", horizon: "Court terme (1–3 mois)" },
+  ];
+
+  const content = (
     <div className="space-y-5">
       <SectionTitle icon={Lightbulb} title="Recommandations Stratégiques" subtitle="5 actions priorisées · Impact / Effort" />
-      <ChartCard title="Impact vs Effort — Vue comparative"
-        subtitle="Or = Impact · Bleu = Effort · Échelle /10">
+      <ChartCard title="Impact vs Effort — Vue comparative" subtitle="Or = Impact · Bleu = Effort · Échelle /10">
         <RecoChart />
       </ChartCard>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -729,9 +695,18 @@ function Recommandations() {
       </div>
     </div>
   );
+
+  return (
+    <LockedSection
+      title="Recommandations Stratégiques — 5 actions"
+      description="5 actions priorisées par Impact/Effort avec KPIs mesurables, horizons temporels et graphique comparatif interactif."
+    >
+      {content}
+    </LockedSection>
+  );
 }
 
-// ─── Section: Sources Log ─────────────────────────────────────────────────────
+// ─── FREE SECTION: Sources Log ────────────────────────────────────────────────
 function SourcesLog() {
   const [filterType, setFilterType] = useState("Tous");
   const sources = [
@@ -759,10 +734,8 @@ function SourcesLog() {
   const typeColors: Record<string, string> = {
     Marché: "oklch(0.55 0.10 260)", Classement: "oklch(0.72 0.12 75)", Presse: "oklch(0.65 0.15 145)",
     Partenariat: "oklch(0.60 0.12 200)", Risque: "oklch(0.60 0.20 25)", Institutionnel: "oklch(0.65 0.10 280)",
-    ESG: "oklch(0.65 0.15 145)", Prix: "oklch(0.72 0.12 75)", Produit: "oklch(0.60 0.12 200)",
-    Digital: "oklch(0.55 0.10 260)",
+    ESG: "oklch(0.65 0.15 145)", Prix: "oklch(0.72 0.12 75)", Produit: "oklch(0.60 0.12 200)", Digital: "oklch(0.55 0.10 260)",
   };
-
   const filtered = filterType === "Tous" ? sources : sources.filter(s => s.type === filterType);
 
   return (
@@ -770,13 +743,8 @@ function SourcesLog() {
       <SectionTitle icon={BarChart2} title="Log des Sources" subtitle="18 sources vérifiées · Liens directs · Dates de publication" />
       <div className="flex gap-2 flex-wrap">
         {types.map(t => (
-          <button key={t} onClick={() => setFilterType(t)}
-            className="text-xs px-2.5 py-1 rounded transition-all"
-            style={{
-              background: filterType === t ? `color-mix(in oklch, ${typeColors[t] || "oklch(0.72 0.12 75)"} 20%, transparent)` : "oklch(0.18 0.010 65)",
-              color: filterType === t ? (typeColors[t] || "oklch(0.72 0.12 75)") : "oklch(0.50 0.008 75)",
-              border: filterType === t ? `1px solid color-mix(in oklch, ${typeColors[t] || "oklch(0.72 0.12 75)"} 40%, transparent)` : "1px solid transparent"
-            }}>
+          <button key={t} onClick={() => setFilterType(t)} className="text-xs px-2.5 py-1 rounded transition-all"
+            style={{ background: filterType === t ? `color-mix(in oklch, ${typeColors[t] || "oklch(0.72 0.12 75)"} 20%, transparent)` : "oklch(0.18 0.010 65)", color: filterType === t ? (typeColors[t] || "oklch(0.72 0.12 75)") : "oklch(0.50 0.008 75)", border: filterType === t ? `1px solid color-mix(in oklch, ${typeColors[t] || "oklch(0.72 0.12 75)"} 40%, transparent)` : "1px solid transparent" }}>
             {t} {t !== "Tous" && `(${sources.filter(s => s.type === t).length})`}
           </button>
         ))}
@@ -797,9 +765,7 @@ function SourcesLog() {
                       <ExternalLink size={9} className="flex-shrink-0 mt-0.5" style={{ color: "oklch(0.72 0.12 75 / 0.60)" }} />
                     </a>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="px-1 py-0.5 rounded" style={{ background: `color-mix(in oklch, ${typeColors[s.type] || "oklch(0.55 0.05 75)"} 15%, transparent)`, color: typeColors[s.type] || "oklch(0.55 0.05 75)", fontSize: "10px" }}>
-                        {s.type}
-                      </span>
+                      <span className="px-1 py-0.5 rounded" style={{ background: `color-mix(in oklch, ${typeColors[s.type] || "oklch(0.55 0.05 75)"} 15%, transparent)`, color: typeColors[s.type] || "oklch(0.55 0.05 75)", fontSize: "10px" }}>{s.type}</span>
                       <span className="text-xs" style={{ color: "oklch(0.45 0.008 75)" }}>{s.date}</span>
                     </div>
                   </div>
@@ -815,22 +781,64 @@ function SourcesLog() {
 
 // ─── Navigation items ─────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { id: "snapshot", label: "Snapshot", icon: LayoutDashboard },
-  { id: "position", label: "Positionnement", icon: Star },
-  { id: "portfolio", label: "Portefeuille", icon: Package },
-  { id: "prix", label: "Prix", icon: DollarSign },
-  { id: "distrib", label: "Distribution", icon: Globe },
-  { id: "media", label: "Part de Voix", icon: Megaphone },
-  { id: "digital", label: "Social & Digital", icon: Smartphone },
-  { id: "risques", label: "Signaux & Risques", icon: Shield },
-  { id: "reco", label: "Recommandations", icon: Lightbulb },
-  { id: "sources", label: "Sources", icon: BarChart2 },
+  { id: "snapshot", label: "Snapshot", icon: LayoutDashboard, locked: false },
+  { id: "position", label: "Positionnement", icon: Star, locked: false },
+  { id: "portfolio", label: "Portefeuille", icon: Package, locked: true },
+  { id: "prix", label: "Prix", icon: DollarSign, locked: true },
+  { id: "distrib", label: "Distribution", icon: Globe, locked: true },
+  { id: "media", label: "Part de Voix", icon: Megaphone, locked: true },
+  { id: "digital", label: "Social & Digital", icon: Smartphone, locked: true },
+  { id: "risques", label: "Signaux & Risques", icon: Shield, locked: true },
+  { id: "reco", label: "Recommandations", icon: Lightbulb, locked: true },
+  { id: "sources", label: "Sources", icon: BarChart2, locked: false },
 ];
 
 const HERO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663032620985/kLQsdpqWbkyuVgHJ6bT7Wg/bollinger-hero-RRuA5yNB5k8o3Z66uCQtXq.webp";
 
+// ─── Access Toggle Button (sidebar) ──────────────────────────────────────────
+function AccessToggle() {
+  const { isFullAccess, lock, openPasswordModal } = useAccess();
+
+  if (isFullAccess) {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 px-3 py-2 rounded"
+          style={{ background: "oklch(0.65 0.15 145 / 0.10)", border: "1px solid oklch(0.65 0.15 145 / 0.25)" }}>
+          <Unlock size={12} style={{ color: "oklch(0.65 0.15 145)" }} />
+          <span style={{ fontSize: "0.70rem", color: "oklch(0.65 0.15 145)", fontWeight: 600 }}>Accès complet actif</span>
+        </div>
+        <button onClick={lock}
+          className="w-full flex items-center gap-2 px-3 py-1.5 rounded transition-all hover:opacity-80"
+          style={{ background: "oklch(0.18 0.010 65)", border: "1px solid oklch(0.72 0.12 75 / 0.10)" }}>
+          <LogOut size={11} style={{ color: "oklch(0.45 0.008 75)" }} />
+          <span style={{ fontSize: "0.68rem", color: "oklch(0.45 0.008 75)" }}>Revenir en mode aperçu</span>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button onClick={openPasswordModal}
+      className="w-full flex items-center gap-2 px-3 py-2.5 rounded transition-all duration-200 hover:scale-[1.02] active:scale-95"
+      style={{
+        background: "linear-gradient(135deg, oklch(0.72 0.12 75 / 0.20) 0%, oklch(0.62 0.14 65 / 0.15) 100%)",
+        border: "1px solid oklch(0.72 0.12 75 / 0.35)",
+        boxShadow: "0 2px 12px oklch(0.72 0.12 75 / 0.12)",
+      }}>
+      <Lock size={13} style={{ color: "oklch(0.72 0.12 75)" }} />
+      <div className="flex-1 text-left">
+        <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "oklch(0.90 0.008 80)", lineHeight: 1.2 }}>Rapport complet</p>
+        <p style={{ fontSize: "0.62rem", color: "oklch(0.55 0.008 75)" }}>7 sections · Entrer le code</p>
+      </div>
+      <ChevronRight size={12} style={{ color: "oklch(0.72 0.12 75)" }} />
+    </button>
+  );
+}
+
 // ─── Desktop Sidebar ──────────────────────────────────────────────────────────
 function DesktopSidebar({ active, onSelect }: { active: string; onSelect: (id: string) => void }) {
+  const { isFullAccess, openPasswordModal } = useAccess();
+
   return (
     <aside className="hidden md:flex flex-col flex-shrink-0"
       style={{ width: "240px", background: "oklch(0.12 0.010 65)", borderRight: "1px solid oklch(0.72 0.12 75 / 0.15)", height: "100vh", position: "sticky", top: 0 }}>
@@ -846,29 +854,37 @@ function DesktopSidebar({ active, onSelect }: { active: string; onSelect: (id: s
           <span className="text-gold-gradient">Bollinger</span>
         </h1>
         <p className="text-xs mt-1.5" style={{ color: "oklch(0.50 0.008 75)" }}>Dashboard CI · Mars 2026</p>
-        <p className="text-xs" style={{ color: "oklch(0.50 0.008 75)" }}>18 sources vérifiées</p>
       </div>
+
       <nav className="flex-1 overflow-y-auto py-3 px-2">
         {NAV_ITEMS.map((item) => {
           const isActive = active === item.id;
+          const isLocked = item.locked && !isFullAccess;
           return (
-            <button key={item.id} onClick={() => onSelect(item.id)}
+            <button key={item.id}
+              onClick={() => isLocked ? openPasswordModal() : onSelect(item.id)}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md mb-0.5 transition-all duration-200 text-left"
               style={{
                 background: isActive ? "oklch(0.72 0.12 75 / 0.12)" : "transparent",
                 border: isActive ? "1px solid oklch(0.72 0.12 75 / 0.25)" : "1px solid transparent",
               }}>
-              <item.icon size={15} style={{ color: isActive ? "oklch(0.72 0.12 75)" : "oklch(0.45 0.008 75)", flexShrink: 0 }} />
-              <span className="text-sm font-medium" style={{ color: isActive ? "oklch(0.90 0.008 80)" : "oklch(0.55 0.008 75)", fontFamily: "'DM Sans', sans-serif" }}>
+              <item.icon size={15} style={{ color: isActive ? "oklch(0.72 0.12 75)" : isLocked ? "oklch(0.35 0.008 75)" : "oklch(0.45 0.008 75)", flexShrink: 0 }} />
+              <span className="text-sm font-medium flex-1" style={{ color: isActive ? "oklch(0.90 0.008 80)" : isLocked ? "oklch(0.40 0.008 75)" : "oklch(0.55 0.008 75)", fontFamily: "'DM Sans', sans-serif" }}>
                 {item.label}
               </span>
-              {isActive && <ChevronRight size={12} className="ml-auto flex-shrink-0" style={{ color: "oklch(0.72 0.12 75)" }} />}
+              {isLocked ? (
+                <Lock size={10} style={{ color: "oklch(0.72 0.12 75 / 0.50)", flexShrink: 0 }} />
+              ) : isActive ? (
+                <ChevronRight size={12} style={{ color: "oklch(0.72 0.12 75)", flexShrink: 0 }} />
+              ) : null}
             </button>
           );
         })}
       </nav>
-      <div className="p-4" style={{ borderTop: "1px solid oklch(0.72 0.12 75 / 0.15)" }}>
-        <p className="text-xs" style={{ color: "oklch(0.40 0.008 75)" }}>© 2026 — Usage interne<br />Données publiques sourcées</p>
+
+      <div className="p-3" style={{ borderTop: "1px solid oklch(0.72 0.12 75 / 0.15)" }}>
+        <AccessToggle />
+        <p className="text-xs mt-3 text-center" style={{ color: "oklch(0.35 0.008 75)" }}>© 2026 — Usage interne</p>
       </div>
     </aside>
   );
@@ -876,7 +892,9 @@ function DesktopSidebar({ active, onSelect }: { active: string; onSelect: (id: s
 
 // ─── Mobile Bottom Nav ────────────────────────────────────────────────────────
 function MobileBottomNav({ active, onSelect }: { active: string; onSelect: (id: string) => void }) {
+  const { isFullAccess, openPasswordModal } = useAccess();
   const scrollRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const idx = NAV_ITEMS.findIndex(n => n.id === active);
     if (scrollRef.current && idx >= 0) {
@@ -890,16 +908,26 @@ function MobileBottomNav({ active, onSelect }: { active: string; onSelect: (id: 
       <div ref={scrollRef} className="flex overflow-x-auto" style={{ scrollbarWidth: "none" }}>
         {NAV_ITEMS.map((item) => {
           const isActive = active === item.id;
+          const isLocked = item.locked && !isFullAccess;
           return (
-            <button key={item.id} onClick={() => onSelect(item.id)}
+            <button key={item.id}
+              onClick={() => isLocked ? openPasswordModal() : onSelect(item.id)}
               className="flex flex-col items-center gap-1 px-3 py-2.5 flex-shrink-0 transition-all duration-200 relative"
               style={{ minWidth: "60px" }}>
               {isActive && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full"
                   style={{ background: "oklch(0.72 0.12 75)" }} />
               )}
-              <item.icon size={16} style={{ color: isActive ? "oklch(0.72 0.12 75)" : "oklch(0.50 0.008 75)" }} />
-              <span style={{ color: isActive ? "oklch(0.72 0.12 75)" : "oklch(0.45 0.008 75)", fontFamily: "'DM Sans', sans-serif", fontSize: "9px", fontWeight: 500, letterSpacing: "0.02em" }}>
+              <div className="relative">
+                <item.icon size={16} style={{ color: isActive ? "oklch(0.72 0.12 75)" : isLocked ? "oklch(0.35 0.008 75)" : "oklch(0.50 0.008 75)" }} />
+                {isLocked && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center"
+                    style={{ background: "oklch(0.72 0.12 75 / 0.20)" }}>
+                    <Lock size={6} style={{ color: "oklch(0.72 0.12 75)" }} />
+                  </div>
+                )}
+              </div>
+              <span style={{ color: isActive ? "oklch(0.72 0.12 75)" : isLocked ? "oklch(0.35 0.008 75)" : "oklch(0.45 0.008 75)", fontFamily: "'DM Sans', sans-serif", fontSize: "9px", fontWeight: 500, letterSpacing: "0.02em" }}>
                 {item.label.split(" ")[0]}
               </span>
             </button>
@@ -912,7 +940,9 @@ function MobileBottomNav({ active, onSelect }: { active: string; onSelect: (id: 
 
 // ─── Mobile Header ────────────────────────────────────────────────────────────
 function MobileHeader({ activeSection }: { activeSection: string }) {
+  const { isFullAccess, openPasswordModal } = useAccess();
   const active = NAV_ITEMS.find(n => n.id === activeSection);
+
   return (
     <div className="md:hidden relative overflow-hidden" style={{ height: activeSection === "snapshot" ? "180px" : "72px" }}>
       {activeSection === "snapshot" && (
@@ -926,24 +956,45 @@ function MobileHeader({ activeSection }: { activeSection: string }) {
       <div className="relative z-10 h-full flex flex-col justify-end px-4 pb-3">
         {activeSection === "snapshot" ? (
           <>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-1 h-5 rounded-full" style={{ background: "oklch(0.72 0.12 75)" }} />
-              <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "oklch(0.72 0.12 75)" }}>Competitive Intelligence</span>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-1 h-5 rounded-full" style={{ background: "oklch(0.72 0.12 75)" }} />
+                  <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "oklch(0.72 0.12 75)" }}>Competitive Intelligence</span>
+                </div>
+                <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", fontWeight: 700, color: "oklch(0.97 0.005 80)", lineHeight: 1.2 }}>
+                  Champagne <span className="text-gold-gradient">Bollinger</span>
+                </h1>
+              </div>
+              {!isFullAccess && (
+                <button onClick={openPasswordModal}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full flex-shrink-0"
+                  style={{ background: "oklch(0.72 0.12 75 / 0.20)", border: "1px solid oklch(0.72 0.12 75 / 0.40)" }}>
+                  <Lock size={11} style={{ color: "oklch(0.72 0.12 75)" }} />
+                  <span style={{ fontSize: "0.68rem", color: "oklch(0.72 0.12 75)", fontWeight: 600 }}>Accès complet</span>
+                </button>
+              )}
             </div>
-            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.4rem", fontWeight: 700, color: "oklch(0.97 0.005 80)", lineHeight: 1.2 }}>
-              Champagne <span className="text-gold-gradient">Bollinger</span>
-            </h1>
-            <p className="text-xs mt-1" style={{ color: "oklch(0.70 0.008 75)" }}>Dashboard CI · Mars 2026 · 18 sources</p>
           </>
         ) : (
-          <div className="flex items-center gap-3">
-            <div className="w-0.5 h-5 rounded-full" style={{ background: "oklch(0.72 0.12 75)" }} />
-            <div>
-              <p className="text-xs uppercase tracking-widest" style={{ color: "oklch(0.72 0.12 75)" }}>Bollinger CI</p>
-              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "0.95rem", fontWeight: 600, color: "oklch(0.95 0.008 80)" }}>
-                {active?.label}
-              </h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-0.5 h-5 rounded-full" style={{ background: "oklch(0.72 0.12 75)" }} />
+              <div>
+                <p className="text-xs uppercase tracking-widest" style={{ color: "oklch(0.72 0.12 75)" }}>Bollinger CI</p>
+                <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "0.95rem", fontWeight: 600, color: "oklch(0.95 0.008 80)" }}>
+                  {active?.label}
+                </h1>
+              </div>
             </div>
+            {!isFullAccess && (
+              <button onClick={openPasswordModal}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full"
+                style={{ background: "oklch(0.72 0.12 75 / 0.15)", border: "1px solid oklch(0.72 0.12 75 / 0.30)" }}>
+                <Lock size={10} style={{ color: "oklch(0.72 0.12 75)" }} />
+                <span style={{ fontSize: "0.65rem", color: "oklch(0.72 0.12 75)", fontWeight: 600 }}>Full</span>
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -980,6 +1031,7 @@ function DesktopPageHeader({ activeSection }: { activeSection: string }) {
 export default function Home() {
   const [activeSection, setActiveSection] = useState("snapshot");
   const contentRef = useRef<HTMLDivElement>(null);
+  const { isFullAccess, openPasswordModal } = useAccess();
 
   const handleSelect = useCallback((id: string) => {
     setActiveSection(id);
@@ -1015,6 +1067,7 @@ export default function Home() {
         </div>
       </div>
       <MobileBottomNav active={activeSection} onSelect={handleSelect} />
+      <PasswordModal />
     </div>
   );
 }
