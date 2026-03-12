@@ -158,7 +158,7 @@ function ExecutiveSnapshot() {
   return (
     <div className="space-y-5">
       <SectionTitle icon={LayoutDashboard} title="Executive Snapshot" subtitle="6 KPIs clés · Insights actionnables · Sources vérifiées" />
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+      <div className="b-grid-kpi">
         {kpis.map((k, i) => <KPICard key={i} {...k} />)}
       </div>
       <ChartCard title="Expéditions champagne mondiales 2019–2025"
@@ -166,7 +166,7 @@ function ExecutiveSnapshot() {
         source={{ label: "Comité Champagne", url: "https://thefinestbubble.com/news-and-reviews/champagne-shipments-fall-again-for-third-successive-year-down-2-in-2025/", date: "jan. 2026" }}>
         <MarketVolumeChart />
       </ChartCard>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="b-grid-2">
         {insights.map((ins, i) => (
           <Card key={i}>
             <div className="flex gap-3">
@@ -215,7 +215,7 @@ function Positionnement() {
   return (
     <div className="space-y-5">
       <SectionTitle icon={Star} title="Positionnement & Proposition de Valeur" subtitle="Bollinger vs competitive set · 9 maisons" />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="b-grid-2">
         <Card>
           <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>ADN Bollinger — Différenciants clés</p>
           {[
@@ -372,7 +372,7 @@ function Prix() {
   const content = (
     <div className="space-y-5">
       <SectionTitle icon={DollarSign} title="Analyse des Prix" subtitle="Fourchettes, tendances, comparatif concurrents" />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="b-grid-2">
         <Card>
           <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "oklch(0.72 0.12 75)" }}>Tendances prix marché</p>
           <div className="space-y-2">
@@ -452,7 +452,7 @@ function Distribution() {
   const content = (
     <div className="space-y-5">
       <SectionTitle icon={Globe} title="Distribution" subtitle="On-trade / Off-trade · Géographies clés · Canaux" />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="b-grid-2">
         <ChartCard title="Top 10 marchés export champagne 2024"
           subtitle="Millions de bouteilles · Or = croissance, Bleu = recul"
           source={{ label: "The Drinks Business", url: "https://www.thedrinksbusiness.com/2025/03/the-top-10-markets-for-champagne-in-2024/", date: "mars 2025" }}>
@@ -502,7 +502,7 @@ function PartDeVoix() {
   const content = (
     <div className="space-y-5">
       <SectionTitle icon={Megaphone} title="Part de Voix & Médias" subtitle="Classements, presse spécialisée, actifs médiatiques" />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="b-grid-2">
         <ChartCard title="Most Admired Champagne 2025–2026"
           subtitle="Score estimé sur 100 · Drinks International · Jury professionnel"
           source={{ label: "Drinks International / Wine Intelligence", url: "https://wine-intelligence.com/blogs/wine-news-insights-wine-intelligence-trends-data-reports/most-admired-champagne-brands-2026-roederer-krug-and-bollinger-lead-again", date: "mars 2026" }}>
@@ -544,7 +544,7 @@ function SocialDigital() {
   const content = (
     <div className="space-y-5">
       <SectionTitle icon={Smartphone} title="Social & Digital" subtitle="Croissance, engagement, campagnes clés" />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="b-grid-2">
         <ChartCard title="Abonnés Instagram — Comparatif maisons"
           subtitle="En milliers · Or = Bollinger · Source : Instagram mars 2026"
           source={{ label: "Instagram", url: "https://www.instagram.com/champagne_bollinger/", date: "mars 2026" }}>
@@ -615,7 +615,7 @@ function SignauxFaibles() {
           </button>
         ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="b-grid-2">
         {filtered.map((s, i) => (
           <Card key={i}>
             <div className="flex items-start gap-3">
@@ -668,7 +668,7 @@ function Recommandations() {
       <ChartCard title="Impact vs Effort — Vue comparative" subtitle="Or = Impact · Bleu = Effort · Échelle /10">
         <RecoChart />
       </ChartCard>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="b-grid-2">
         {recs.map((r, i) => (
           <Card key={i}>
             <div className="flex items-start gap-3">
@@ -749,7 +749,7 @@ function SourcesLog() {
           </button>
         ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="b-grid-2">
         {[filtered.slice(0, Math.ceil(filtered.length / 2)), filtered.slice(Math.ceil(filtered.length / 2))].map((col, ci) => (
           <Card key={ci}>
             <div className="space-y-2">
@@ -840,8 +840,7 @@ function DesktopSidebar({ active, onSelect }: { active: string; onSelect: (id: s
   const { isFullAccess, openPasswordModal } = useAccess();
 
   return (
-    <aside className="hidden md:flex flex-col flex-shrink-0"
-      style={{ width: "240px", background: "oklch(0.12 0.010 65)", borderRight: "1px solid oklch(0.72 0.12 75 / 0.15)", height: "100vh", position: "sticky", top: 0 }}>
+    <aside className="b-sidebar">
       <div className="p-5 pb-4" style={{ borderBottom: "1px solid oklch(0.72 0.12 75 / 0.15)" }}>
         <div className="flex items-center gap-2 mb-1">
           <div className="w-1 h-5 rounded-full" style={{ background: "oklch(0.72 0.12 75)" }} />
@@ -904,7 +903,7 @@ function MobileBottomNav({ active, onSelect }: { active: string; onSelect: (id: 
   }, [active]);
 
   return (
-    <div className="md:hidden bottom-nav fixed bottom-0 left-0 right-0 z-50">
+    <div className="b-bottom-nav-wrap bottom-nav fixed bottom-0 left-0 right-0 z-50">
       <div ref={scrollRef} className="flex overflow-x-auto" style={{ scrollbarWidth: "none" }}>
         {NAV_ITEMS.map((item) => {
           const isActive = active === item.id;
@@ -944,7 +943,7 @@ function MobileHeader({ activeSection }: { activeSection: string }) {
   const active = NAV_ITEMS.find(n => n.id === activeSection);
 
   return (
-    <div className="md:hidden relative overflow-hidden" style={{ height: activeSection === "snapshot" ? "180px" : "72px" }}>
+    <div className="b-mobile-header relative overflow-hidden" style={{ height: activeSection === "snapshot" ? "180px" : "72px" }}>
       {activeSection === "snapshot" && (
         <img src={HERO_URL} alt="Bollinger" className="absolute inset-0 w-full h-full object-cover" />
       )}
@@ -1005,7 +1004,7 @@ function MobileHeader({ activeSection }: { activeSection: string }) {
 // ─── Desktop Page Header ──────────────────────────────────────────────────────
 function DesktopPageHeader({ activeSection }: { activeSection: string }) {
   return (
-    <div className="hidden md:block relative overflow-hidden"
+    <div className="b-desktop-header relative overflow-hidden"
       style={{ height: activeSection === "snapshot" ? "220px" : "0px", transition: "height 0.3s ease" }}>
       {activeSection === "snapshot" && (
         <>
@@ -1060,7 +1059,7 @@ export default function Home() {
       <div className="flex-1 flex flex-col min-w-0">
         <MobileHeader activeSection={activeSection} />
         <DesktopPageHeader activeSection={activeSection} />
-        <div ref={contentRef} className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 pb-24 md:pb-8 pt-4 md:pt-0">
+        <div ref={contentRef} className="b-main">
           <div className="max-w-5xl">
             {renderSection()}
           </div>

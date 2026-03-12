@@ -248,4 +248,119 @@
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: oklch(0.72 0.12 75 / 0.3); border-radius: 2px; }
+
+  /* =============================================
+   * RESPONSIVE LAYOUT UTILITIES
+   * Tailwind 4 breakpoints compiled via CSS @media
+   * md = 768px, lg = 1024px, xl = 1280px
+   * ============================================= */
+
+  /* Sidebar: hidden on mobile, flex on desktop */
+  .b-sidebar {
+    display: none;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 240px;
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    background: oklch(0.12 0.010 65);
+    border-right: 1px solid oklch(0.72 0.12 75 / 0.15);
+    overflow-y: auto;
+    z-index: 40;
+  }
+
+  /* Bottom nav: visible on mobile, hidden on desktop */
+  .b-bottom-nav-wrap {
+    display: block;
+  }
+
+  /* Mobile header: visible on mobile, hidden on desktop */
+  .b-mobile-header {
+    display: block;
+  }
+
+  /* Desktop header: hidden on mobile, visible on desktop */
+  .b-desktop-header {
+    display: none;
+  }
+
+  /* Main content: full width on mobile, offset on desktop */
+  .b-main {
+    flex: 1;
+    min-width: 0;
+    padding: 1rem;
+    padding-bottom: 80px; /* space for bottom nav on mobile */
+    overflow-y: auto;
+  }
+
+  /* Grid: 1 col on mobile */
+  .b-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* KPI grid: 2 cols on mobile */
+  .b-grid-kpi {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  /* Recommendations grid: 1 col on mobile */
+  .b-grid-reco {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  /* Price table: scrollable on mobile */
+  .b-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (min-width: 768px) {
+    .b-sidebar {
+      display: flex;
+    }
+    .b-bottom-nav-wrap {
+      display: none;
+    }
+    .b-mobile-header {
+      display: none;
+    }
+    .b-desktop-header {
+      display: block;
+    }
+    .b-main {
+      padding: 1.5rem;
+      padding-bottom: 2rem;
+    }
+    .b-grid-kpi {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .b-grid-reco {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .b-grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .b-grid-reco {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .b-grid-kpi {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .b-sidebar {
+      width: 260px;
+    }
+  }
 }
