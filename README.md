@@ -21,9 +21,9 @@ Interactive analytics dashboard for the Bollinger wine & champagne portfolio, bu
 
 ## Branches
 
-This repository uses two main branches:
+This repository currently uses two main branches:
 
-- `main`: historical branch linked to the original Manus-based version of the dashboard.
+- `main`: legacy branch containing the original version of the project and historical code.
 - `public-github-pages`: branch used for the standalone public version deployed to GitHub Pages.
 
 All deployment automation targets the `public-github-pages` branch.
