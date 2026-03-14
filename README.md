@@ -4,7 +4,8 @@ Interactive analytics dashboard for the Bollinger wine & champagne portfolio, bu
 
 ## Demo
 
-- Live demo: https://stanislasbasquin.github.io/dashboard-bollinger/
+- GitHub Pages: https://stanislasbasquin.github.io/dashboard-bollinger/
+- Custom domain (planned): https://dashboard-bollinger.noah-consultant.com
 
 ## Features
 
@@ -18,11 +19,22 @@ Interactive analytics dashboard for the Bollinger wine & champagne portfolio, bu
 - Tailwind CSS for styling.
 - GitHub Actions + GitHub Pages for continuous deployment.
 
+## Branches
+
+This repository uses two main branches:
+
+- `main`: historical branch linked to the original Manus-based version of the dashboard.
+- `public-github-pages`: branch used for the standalone public version deployed to GitHub Pages.
+
+All deployment automation targets the `public-github-pages` branch.
+
 ## Local development
+
+> For the standalone public version (GitHub Pages build)
 
 Prerequisites:
 
-- Node.js (version 18+ recommandée).
+- Node.js (version 18+ recommended)
 
 Setup:
 
@@ -40,7 +52,7 @@ npm run build
 The production bundle is generated in the dist folder.
 
 Deployment
-Deployment is handled automatically by GitHub Actions:
+Deployment of the public dashboard is handled automatically by GitHub Actions:
 
 Any push to the public-github-pages branch triggers a workflow that:
 
@@ -54,4 +66,6 @@ publishes the dist folder to GitHub Pages.
 
 The site is served at:
 
-https://stanislasbasquin.github.io/dashboard-bollinger/
+GitHub Pages URL: https://<ton-user>.github.io/dashboard-bollinger/
+
+Custom domain (when configured): https://dashboard-bollinger.noah-consultant.com
