@@ -66,6 +66,6 @@ publishes the dist folder to GitHub Pages.
 
 The site is served at:
 
-GitHub Pages URL: https://<ton-user>.github.io/dashboard-bollinger/
+GitHub Pages URL: https://stanislasbasquin.github.io/dashboard-bollinger/
 
 Custom domain (when configured): https://dashboard-bollinger.noah-consultant.com
