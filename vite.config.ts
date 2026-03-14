@@ -155,6 +155,8 @@ const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(
 const isProd = process.env.NODE_ENV === "production";
 
 export default defineConfig({
+  // DEV: http://localhost:3000/  → base = '/'
+  // PROD: https://...github.io/dashboard-bollinger/ → base = '/dashboard-bollinger/'
   base: isProd ? "/dashboard-bollinger/" : "/",
   plugins,
   resolve: {
